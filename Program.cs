@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+Console.WriteLine("Hello, World!");
+
 // TESTING THE RULES
 
 // Add services to the container.
