@@ -1,4 +1,4 @@
-﻿namespace RiskManagement.Models
+namespace RiskManagement.Models
 {
     public class Asset
     {
@@ -23,6 +23,7 @@
         // Navigation property
 
         public Organization Organization { get; set; } = null!;
+        public List<Risk> Risks { get; set; } = [];
 
     }
 }

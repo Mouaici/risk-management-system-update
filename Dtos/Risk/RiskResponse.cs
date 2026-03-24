@@ -1,0 +1,18 @@
+namespace RiskManagement.Dtos.Risk;
+
+public class RiskResponse
+{
+    public int Id { get; set; }
+    public int OrganizationId { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public int? OwnerUserId { get; set; }
+    public int? AssetId { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public int Likelihood { get; set; }
+    public int Impact { get; set; }
+    public int Score { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+}
+

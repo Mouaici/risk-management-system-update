@@ -1,4 +1,4 @@
-﻿namespace RiskManagement.Models
+namespace RiskManagement.Models
 {
     public class Organization
     {
@@ -8,8 +8,9 @@
         public required string Status { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-        
+
         public List<User> Users { get; set; } = new();
         public List<Asset> Assets { get; set; } = new();
+        public List<Risk> Risks { get; set; } = new();
     }
 }

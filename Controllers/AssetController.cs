@@ -1,22 +1,28 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using RiskManagement.Services;
 
-namespace RiskManagement.Controllers
+namespace RiskManagement.Controllers;
+
+[ApiController]
+[Route("api/asset")]
+[Authorize]
+public class AssetController(ICurrentUserService currentUserService) : ControllerBase
 {
-    [ApiController]
-    [Route("api/asset")]
-    public class AssetController : ControllerBase
+    [HttpGet]
+    public IActionResult GetAllAssets()
     {
+        var role = currentUserService.GetRequiredRole();
+        var hasAccess =
+            role.Equals("User", StringComparison.OrdinalIgnoreCase) ||
+            role.Equals("Admin", StringComparison.OrdinalIgnoreCase) ||
+            role.Equals("Superadmin", StringComparison.OrdinalIgnoreCase);
 
-        [HttpGet]
-
-        public string Test()
-
+        if (!hasAccess)
         {
-
-            return "API working";
-
+            return Forbid();
         }
 
-
+        return Ok("API working");
     }
 }
