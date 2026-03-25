@@ -32,20 +32,15 @@ public class OrganizationController(RiskManagementDbContext context, ICurrentUse
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddOrganization()
+    [Authorize(Policy = "SuperadminOnly")]
+    public async Task<ActionResult<Organization>> AddOrganization([FromBody] RiskManagement.Dtos.Organization.CreateOrganizationRequest request)
     {
-        var role = currentUserService.GetRequiredRole();
-        if (!IsSuperadmin(role))
-        {
-            return Forbid();
-        }
-
         var now = DateTime.UtcNow;
         var org = new Organization
         {
-            Name = "Test Org",
-            IsoScope = "ISO9001",
-            Status = "Active",
+            Name = request.Name.Trim(),
+            IsoScope = request.IsoScope.Trim(),
+            Status = request.Status.Trim(),
             CreatedAt = now,
             UpdatedAt = now
         };
@@ -54,6 +49,40 @@ public class OrganizationController(RiskManagementDbContext context, ICurrentUse
         await context.SaveChangesAsync();
 
         return Ok(org);
+    }
+
+    [HttpPut("{id:int}")]
+    [Authorize(Policy = "SuperadminOnly")]
+    public async Task<ActionResult<Organization>> UpdateOrganization(int id, [FromBody] RiskManagement.Dtos.Organization.UpdateOrganizationRequest request)
+    {
+        var org = await context.Organizations.FirstOrDefaultAsync(o => o.Id == id);
+        if (org is null)
+        {
+            return NotFound();
+        }
+
+        org.Name = request.Name.Trim();
+        org.IsoScope = request.IsoScope.Trim();
+        org.Status = request.Status.Trim();
+        org.UpdatedAt = DateTime.UtcNow;
+
+        await context.SaveChangesAsync();
+        return Ok(org);
+    }
+
+    [HttpDelete("{id:int}")]
+    [Authorize(Policy = "SuperadminOnly")]
+    public async Task<IActionResult> DeleteOrganization(int id)
+    {
+        var org = await context.Organizations.FirstOrDefaultAsync(o => o.Id == id);
+        if (org is null)
+        {
+            return NotFound();
+        }
+
+        context.Organizations.Remove(org);
+        await context.SaveChangesAsync();
+        return NoContent();
     }
 
     private static bool IsSuperadmin(string role) => role.Equals("Superadmin", StringComparison.OrdinalIgnoreCase);
