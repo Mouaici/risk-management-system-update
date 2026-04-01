@@ -1,70 +1,89 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RiskManagement.Models;
+using RiskManagement.Services;
 
-namespace RiskManagement.Controllers
+namespace RiskManagement.Controllers;
+
+[ApiController]
+[Route("api/organization")]
+[Authorize]
+public class OrganizationController(RiskManagementDbContext context, ICurrentUserService currentUserService) : ControllerBase
 {
-    [ApiController]
-    [Route("api/organization")]
-    public class OrganizationController: ControllerBase
+    [HttpGet]
+    public async Task<IActionResult> GetOrganizations()
     {
-        private readonly RiskManagementDbContext _context;
+        var role = currentUserService.GetRequiredRole();
+        var organizationId = currentUserService.GetRequiredOrganizationId();
 
-        public OrganizationController (RiskManagementDbContext context)
-
+        if (IsSuperadmin(role))
         {
-
-            _context = context;
-
+            var allOrganizations = await context.Organizations.AsNoTracking().ToListAsync();
+            return Ok(allOrganizations);
         }
 
-        // GET: api/dbtest
+        var organization = await context.Organizations
+            .AsNoTracking()
+            .Where(x => x.Id == organizationId)
+            .ToListAsync();
 
-        [HttpGet]
-
-        public async Task<IActionResult> GetOrganizations()
-
-        {
-
-            var orgs = await _context.Organizations.ToListAsync();
-
-            return Ok(orgs);
-
-        }
-
-        // POST: api/dbtest
-
-        [HttpPost]
-
-        public async Task<IActionResult> AddOrganization()
-
-        {
-
-            var org = new Organization
-
-            {
-
-                Name = "Test Org",
-
-                IsoScope = "ISO9001",
-
-                Status = "active",
-
-                CreatedAt = DateTime.UtcNow,
-
-                UpdatedAt = DateTime.UtcNow
-
-            };
-
-            _context.Organizations.Add(org);
-
-            await _context.SaveChangesAsync();
-
-            return Ok(org);
-
-        }
-
-        
-
+        return Ok(organization);
     }
+
+    [HttpPost]
+    [Authorize(Policy = "SuperadminOnly")]
+    public async Task<ActionResult<Organization>> AddOrganization([FromBody] RiskManagement.Dtos.Organization.CreateOrganizationRequest request)
+    {
+        var now = DateTime.UtcNow;
+        var org = new Organization
+        {
+            Name = request.Name.Trim(),
+            IsoScope = request.IsoScope.Trim(),
+            Status = request.Status.Trim(),
+            CreatedAt = now,
+            UpdatedAt = now
+        };
+
+        context.Organizations.Add(org);
+        await context.SaveChangesAsync();
+
+        return Ok(org);
+    }
+
+    [HttpPut("{id:int}")]
+    [Authorize(Policy = "SuperadminOnly")]
+    public async Task<ActionResult<Organization>> UpdateOrganization(int id, [FromBody] RiskManagement.Dtos.Organization.UpdateOrganizationRequest request)
+    {
+        var org = await context.Organizations.FirstOrDefaultAsync(o => o.Id == id);
+        if (org is null)
+        {
+            return NotFound();
+        }
+
+        org.Name = request.Name.Trim();
+        org.IsoScope = request.IsoScope.Trim();
+        org.Status = request.Status.Trim();
+        org.UpdatedAt = DateTime.UtcNow;
+
+        await context.SaveChangesAsync();
+        return Ok(org);
+    }
+
+    [HttpDelete("{id:int}")]
+    [Authorize(Policy = "SuperadminOnly")]
+    public async Task<IActionResult> DeleteOrganization(int id)
+    {
+        var org = await context.Organizations.FirstOrDefaultAsync(o => o.Id == id);
+        if (org is null)
+        {
+            return NotFound();
+        }
+
+        context.Organizations.Remove(org);
+        await context.SaveChangesAsync();
+        return NoContent();
+    }
+
+    private static bool IsSuperadmin(string role) => role.Equals("Superadmin", StringComparison.OrdinalIgnoreCase);
 }
