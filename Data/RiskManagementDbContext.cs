@@ -15,6 +15,7 @@ public class RiskManagementDbContext : DbContext
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<UserProfileChangeRequest> UserProfileChangeRequests { get; set; }
     public DbSet<Incident> Incidents { get; set; }
+    public DbSet<ActionPlan> ActionPlans { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
