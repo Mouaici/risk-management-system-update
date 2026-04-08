@@ -14,6 +14,7 @@ public class RiskManagementDbContext : DbContext
     public DbSet<Risk> Risks { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<UserProfileChangeRequest> UserProfileChangeRequests { get; set; }
+    public DbSet<Incident> Incidents { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -183,7 +184,7 @@ public class RiskManagementDbContext : DbContext
             .HasOne(risk => risk.Asset)
             .WithMany(asset => asset.Risks)
             .HasForeignKey(risk => risk.AssetId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<RefreshToken>()
             .ToTable("RefreshTokens")
@@ -230,7 +231,7 @@ public class RiskManagementDbContext : DbContext
             .HasOne(refreshToken => refreshToken.User)
             .WithMany(user => user.RefreshTokens)
             .HasForeignKey(refreshToken => refreshToken.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<UserProfileChangeRequest>()
             .ToTable("user_profile_change_request")
@@ -277,12 +278,61 @@ public class RiskManagementDbContext : DbContext
             .HasOne(changeRequest => changeRequest.User)
             .WithMany(user => user.ProfileChangeRequests)
             .HasForeignKey(changeRequest => changeRequest.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<UserProfileChangeRequest>()
             .HasOne(changeRequest => changeRequest.ReviewedByUser)
             .WithMany(user => user.ReviewedProfileChangeRequests)
             .HasForeignKey(changeRequest => changeRequest.ReviewedByUserId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Incident>()
+            .ToTable("incident")
+            .Property(i => i.Id)
+            .HasColumnName("id");
+
+        modelBuilder.Entity<Incident>()
+            .Property(i => i.OrganizationId)
+            .HasColumnName("organization_id");
+
+        modelBuilder.Entity<Incident>()
+            .Property(i => i.ReportedByUserId)
+            .HasColumnName("reported_by_user_id");
+
+        modelBuilder.Entity<Incident>()
+            .Property(i => i.Title)
+            .HasColumnName("title");
+
+        modelBuilder.Entity<Incident>()
+            .Property(i => i.Severity)
+            .HasColumnName("severity");
+
+        modelBuilder.Entity<Incident>()
+            .Property(i => i.OccuredOn)
+            .HasColumnName("occured_on");
+
+        modelBuilder.Entity<Incident>()
+            .Property(i => i.IncidentStatus)
+            .HasColumnName("incident_status");
+
+        modelBuilder.Entity<Incident>()
+            .Property(i => i.CreatedAt)
+            .HasColumnName("created_at");
+
+        modelBuilder.Entity<Incident>()
+            .Property(i => i.UpdatedAt)
+            .HasColumnName("updated_at");
+
+        modelBuilder.Entity<Incident>()
+            .HasOne(i => i.Organization)
+            .WithMany(o => o.Incidents)
+            .HasForeignKey(i => i.OrganizationId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Incident>()
+            .HasOne(i => i.ReportedByUser)
+            .WithMany()
+            .HasForeignKey(i => i.ReportedByUserId)
             .OnDelete(DeleteBehavior.SetNull);
 
         base.OnModelCreating(modelBuilder);
