@@ -18,5 +18,6 @@ public class Risk
     public Organization Organization { get; set; } = null!;
     public User? OwnerUser { get; set; }
     public Asset? Asset { get; set; }
+    public List<ActionPlan> ActionPlans { get; set; } = [];
 }
 

@@ -336,6 +336,69 @@ public class RiskManagementDbContext : DbContext
             .HasForeignKey(i => i.ReportedByUserId)
             .OnDelete(DeleteBehavior.SetNull);
 
+        modelBuilder.Entity<ActionPlan>()
+            .ToTable("ActionPlan")
+            .Property(ap => ap.Id)
+            .HasColumnName("id");
+
+        modelBuilder.Entity<ActionPlan>()
+            .Property(ap => ap.RiskId)
+            .HasColumnName("risk_id");
+
+        modelBuilder.Entity<ActionPlan>()
+            .Property(ap => ap.IncidentId)
+            .HasColumnName("incident_id");
+
+        modelBuilder.Entity<ActionPlan>()
+            .Property(ap => ap.OwnerUserId)
+            .HasColumnName("owner_user_id");
+
+        modelBuilder.Entity<ActionPlan>()
+            .Property(ap => ap.SuggestedAction)
+            .HasColumnName("suggested_action");
+
+        modelBuilder.Entity<ActionPlan>()
+            .Property(ap => ap.PlannedCompletionDate)
+            .HasColumnName("planned_completion_date");
+
+        modelBuilder.Entity<ActionPlan>()
+            .Property(ap => ap.ActionPlanStatus)
+            .HasColumnName("action_plan_status");
+
+        modelBuilder.Entity<ActionPlan>()
+            .Property(ap => ap.FollowUp)
+            .HasColumnName("follow_up");
+
+        modelBuilder.Entity<ActionPlan>()
+            .Property(ap => ap.Notes)
+            .HasColumnName("notes");
+
+        modelBuilder.Entity<ActionPlan>()
+            .Property(ap => ap.CreatedAt)
+            .HasColumnName("created_at");
+
+        modelBuilder.Entity<ActionPlan>()
+            .Property(ap => ap.UpdatedAt)
+            .HasColumnName("updated_at");
+
+        modelBuilder.Entity<ActionPlan>()
+            .HasOne(ap => ap.Risk)
+            .WithMany(risk => risk.ActionPlans)
+            .HasForeignKey(ap => ap.RiskId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<ActionPlan>()
+            .HasOne(ap => ap.Incident)
+            .WithMany(incident => incident.ActionPlans)
+            .HasForeignKey(ap => ap.IncidentId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<ActionPlan>()
+            .HasOne(ap => ap.OwnerUser)
+            .WithMany(user => user.ActionPlans)
+            .HasForeignKey(ap => ap.OwnerUserId)
+            .OnDelete(DeleteBehavior.SetNull);
+
         base.OnModelCreating(modelBuilder);
     }
 }

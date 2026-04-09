@@ -13,5 +13,6 @@ namespace RiskManagement.Models
         public List<Asset> Assets { get; set; } = new();
         public List<Risk> Risks { get; set; } = new();
         public List<Incident> Incidents { get; set; } = new();
+        public List<ActionPlan> ActionPlans { get; set; } = new();
     }
 }

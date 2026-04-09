@@ -17,6 +17,7 @@ namespace RiskManagement.Models
         public List<RefreshToken> RefreshTokens { get; set; } = [];
         public List<UserProfileChangeRequest> ProfileChangeRequests { get; set; } = [];
         public List<UserProfileChangeRequest> ReviewedProfileChangeRequests { get; set; } = [];
-        // No navigation for reported incidents to keep it simple
+        public List<ActionPlan> ActionPlans { get; set; } = [];
+        
     }
 }
