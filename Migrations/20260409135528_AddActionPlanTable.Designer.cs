@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace RiskManagement.Migrations
 {
     [DbContext(typeof(RiskManagementDbContext))]
-    [Migration("20260409113535_AddActionPlanTable")]
+    [Migration("20260409135528_AddActionPlanTable")]
     partial class AddActionPlanTable
     {
         /// <inheritdoc />
