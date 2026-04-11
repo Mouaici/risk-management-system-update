@@ -354,6 +354,10 @@ public class RiskManagementDbContext : DbContext
             .HasColumnName("owner_user_id");
 
         modelBuilder.Entity<ActionPlan>()
+    .Property(ap => ap.OrganizationId)
+    .HasColumnName("organization_id");
+
+        modelBuilder.Entity<ActionPlan>()
             .Property(ap => ap.SuggestedAction)
             .HasColumnName("suggested_action");
 
@@ -398,6 +402,13 @@ public class RiskManagementDbContext : DbContext
             .WithMany(user => user.ActionPlans)
             .HasForeignKey(ap => ap.OwnerUserId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<ActionPlan>()
+     .HasOne(ap => ap.Organization)
+     .WithMany(o => o.ActionPlans)
+     .HasForeignKey(ap => ap.OrganizationId)
+     .OnDelete(DeleteBehavior.Cascade)
+     .IsRequired(); 
 
         base.OnModelCreating(modelBuilder);
     }

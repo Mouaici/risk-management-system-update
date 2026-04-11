@@ -9,13 +9,13 @@ namespace RiskManagement.Controllers;
 
 [ApiController]
 [Route("api/action-plans")]
-[Authorize]
+[Authorize(Policy = "AnyAuthenticatedUser")]
 public class ActionPlanController(RiskManagementDbContext context, ICurrentUserService currentUserService) : ControllerBase
 {
 
     // GET: api/ActionPlan
     [HttpGet]
-    [Authorize(Policy = "AnyAuthenticatedUser")]
+    
     public async Task<ActionResult<List<ActionPlanResponse>>> GetAll()
     {
         var orgId = currentUserService.GetRequiredOrganizationId();
@@ -43,7 +43,7 @@ public class ActionPlanController(RiskManagementDbContext context, ICurrentUserS
 
     // GET: api/ActionPlan/5
     [HttpGet("{id}")]
-    [Authorize(Policy = "AnyAuthenticatedUser")]
+    
     public async Task<ActionResult<ActionPlanResponse>> Get(int id)
     {
         var orgId = currentUserService.GetRequiredOrganizationId();
@@ -73,6 +73,7 @@ public class ActionPlanController(RiskManagementDbContext context, ICurrentUserS
 
     // POST: api/ActionPlan
     [HttpPost]
+    [Authorize]
     public async Task<ActionResult<ActionPlanResponse>> Create([FromBody] CreateActionPlanRequest createDto)
     {
         var organizationId = currentUserService.GetRequiredOrganizationId();
@@ -132,6 +133,7 @@ public class ActionPlanController(RiskManagementDbContext context, ICurrentUserS
 
     // PUT: api/ActionPlan/5
     [HttpPut("{id}")]
+    [Authorize]
     public async Task<ActionResult<ActionPlanResponse>> Update(int id, [FromBody] UpdateActionPlanRequest updateDto)
     {
         var organizationId = currentUserService.GetRequiredOrganizationId();
