@@ -22,9 +22,11 @@ public class ActionPlanController(RiskManagementDbContext context, ICurrentUserS
 
         var actionPlans = await context.ActionPlans
             .AsNoTracking()
+            .Where(a => a.OrganizationId == orgId)
             .Select(a => new ActionPlanResponse
             {
                 Id = a.Id,
+                OrganizationId = a.OrganizationId,
                 RiskId = a.RiskId,
                 IncidentId = a.IncidentId,
                 OwnerUserId = a.OwnerUserId,
@@ -50,10 +52,11 @@ public class ActionPlanController(RiskManagementDbContext context, ICurrentUserS
 
         var actionPlan = await context.ActionPlans
             .AsNoTracking()
-            .Where(a => a.Id == id)
+            .Where(a => a.Id == id && a.OrganizationId == orgId)
             .Select(a => new ActionPlanResponse
             {
                 Id = a.Id,
+                OrganizationId = a.OrganizationId,
                 RiskId = a.RiskId,
                 IncidentId = a.IncidentId,
                 OwnerUserId = a.OwnerUserId,
@@ -77,6 +80,15 @@ public class ActionPlanController(RiskManagementDbContext context, ICurrentUserS
     public async Task<ActionResult<ActionPlanResponse>> Create([FromBody] CreateActionPlanRequest createDto)
     {
         var organizationId = currentUserService.GetRequiredOrganizationId();
+        
+        if (createDto.RiskId == 0) createDto.RiskId = null;
+        if (createDto.IncidentId == 0) createDto.IncidentId = null;
+
+        // XOR validation
+        if (createDto.RiskId.HasValue == createDto.IncidentId.HasValue)
+        {
+            return BadRequest("Provide either RiskId OR IncidentId (exactly one required).");
+        }
 
         var ownerUserId = await ValidateOwnerAsync(organizationId, createDto.OwnerUserId);
         if (createDto.OwnerUserId.HasValue && ownerUserId is null)
@@ -99,6 +111,7 @@ public class ActionPlanController(RiskManagementDbContext context, ICurrentUserS
         var entity = new ActionPlan
         {
             RiskId = riskId,
+            OrganizationId = organizationId,
             IncidentId = incidentId,
             OwnerUserId = ownerUserId,
             SuggestedAction = createDto.SuggestedAction,
@@ -116,6 +129,7 @@ public class ActionPlanController(RiskManagementDbContext context, ICurrentUserS
         var response = new ActionPlanResponse
         {
             Id = entity.Id,
+            OrganizationId = entity.OrganizationId,
             RiskId = entity.RiskId,
             IncidentId = entity.IncidentId,
             OwnerUserId = entity.OwnerUserId,
@@ -137,9 +151,16 @@ public class ActionPlanController(RiskManagementDbContext context, ICurrentUserS
     public async Task<ActionResult<ActionPlanResponse>> Update(int id, [FromBody] UpdateActionPlanRequest updateDto)
     {
         var organizationId = currentUserService.GetRequiredOrganizationId();
+        if (updateDto.RiskId == 0) updateDto.RiskId = null;
+        if (updateDto.IncidentId == 0) updateDto.IncidentId = null;
+
+        if (updateDto.RiskId.HasValue == updateDto.IncidentId.HasValue)
+        {
+            return BadRequest("Provide either RiskId OR IncidentId (exactly one required).");
+        }
 
         var existing = await context.ActionPlans
-            .FirstOrDefaultAsync(a => a.Id == id);
+            .FirstOrDefaultAsync(a => a.Id == id && a.OrganizationId == organizationId);
 
         if (existing == null) return NotFound();
 
@@ -176,6 +197,7 @@ public class ActionPlanController(RiskManagementDbContext context, ICurrentUserS
         var response = new ActionPlanResponse
         {
             Id = existing.Id,
+            OrganizationId = existing.OrganizationId,
             RiskId = existing.RiskId,
             IncidentId = existing.IncidentId,
             OwnerUserId = existing.OwnerUserId,
@@ -199,7 +221,7 @@ public class ActionPlanController(RiskManagementDbContext context, ICurrentUserS
         var organizationId = currentUserService.GetRequiredOrganizationId();
 
         var actionPlan = await context.ActionPlans
-            .FirstOrDefaultAsync(a => a.Id == id);
+            .FirstOrDefaultAsync(a => a.Id == id && a.OrganizationId == organizationId);
 
         if (actionPlan == null) return NotFound();
 
