@@ -5,6 +5,7 @@ namespace RiskManagement.Models
         public int Id { get; set; }
 
         public int OrganizationId { get; set; }
+       
 
         public required string Name { get; set; } = null!;
 
@@ -22,7 +23,7 @@ namespace RiskManagement.Models
 
         // Navigation property
 
-        public Organization Organization { get; set; } = null!;
+        public  Organization Organization { get; set; } = null!;
         public List<Risk> Risks { get; set; } = [];
 
     }
