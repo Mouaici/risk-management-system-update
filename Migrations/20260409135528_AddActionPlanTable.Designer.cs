@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace RiskManagement.Migrations
 {
     [DbContext(typeof(RiskManagementDbContext))]
-    partial class RiskManagementDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260409135528_AddActionPlanTable")]
+    partial class AddActionPlanTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,9 +53,8 @@ namespace RiskManagement.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("notes");
 
-                    b.Property<int>("OrganizationId")
-                        .HasColumnType("int")
-                        .HasColumnName("organization_id");
+                    b.Property<int?>("OrganizationId")
+                        .HasColumnType("int");
 
                     b.Property<int?>("OwnerUserId")
                         .HasColumnType("int")
@@ -469,11 +471,9 @@ namespace RiskManagement.Migrations
                         .HasForeignKey("IncidentId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("RiskManagement.Models.Organization", "Organization")
+                    b.HasOne("RiskManagement.Models.Organization", null)
                         .WithMany("ActionPlans")
-                        .HasForeignKey("OrganizationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("OrganizationId");
 
                     b.HasOne("RiskManagement.Models.User", "OwnerUser")
                         .WithMany("ActionPlans")
@@ -486,8 +486,6 @@ namespace RiskManagement.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Incident");
-
-                    b.Navigation("Organization");
 
                     b.Navigation("OwnerUser");
 

@@ -11,6 +11,7 @@ public class Incident
 
     public int? ReportedByUserId { get; set; }
     public User? ReportedByUser { get; set; }
+    public List<ActionPlan> ActionPlans { get; set; } = [];
 
     public required string Title { get; set; }
 
