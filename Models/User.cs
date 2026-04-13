@@ -18,6 +18,6 @@ namespace RiskManagement.Models
         public List<UserProfileChangeRequest> ProfileChangeRequests { get; set; } = [];
         public List<UserProfileChangeRequest> ReviewedProfileChangeRequests { get; set; } = [];
         public List<ActionPlan> ActionPlans { get; set; } = [];
-        
+
     }
 }

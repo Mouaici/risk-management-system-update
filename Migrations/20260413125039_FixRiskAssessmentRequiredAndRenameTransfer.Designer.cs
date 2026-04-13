@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace RiskManagement.Migrations
 {
     [DbContext(typeof(RiskManagementDbContext))]
-    partial class RiskManagementDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260413125039_FixRiskAssessmentRequiredAndRenameTransfer")]
+    partial class FixRiskAssessmentRequiredAndRenameTransfer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -84,7 +87,7 @@ namespace RiskManagement.Migrations
 
                     b.HasIndex("RiskId");
 
-                    b.ToTable("action_plan", (string)null);
+                    b.ToTable("ActionPlan", (string)null);
                 });
 
             modelBuilder.Entity("RiskManagement.Models.Asset", b =>
@@ -277,7 +280,7 @@ namespace RiskManagement.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("refresh_token", (string)null);
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("RiskManagement.Models.Risk", b =>
@@ -607,7 +610,7 @@ namespace RiskManagement.Migrations
                     b.HasOne("RiskManagement.Models.User", "User")
                         .WithMany("RefreshTokens")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
                     b.Navigation("User");

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace RiskManagement.Migrations
 {
     [DbContext(typeof(RiskManagementDbContext))]
-    partial class RiskManagementDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260413114031_AddRiskAssessmentTable")]
+    partial class AddRiskAssessmentTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -84,7 +87,7 @@ namespace RiskManagement.Migrations
 
                     b.HasIndex("RiskId");
 
-                    b.ToTable("action_plan", (string)null);
+                    b.ToTable("ActionPlan", (string)null);
                 });
 
             modelBuilder.Entity("RiskManagement.Models.Asset", b =>
@@ -277,7 +280,7 @@ namespace RiskManagement.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("refresh_token", (string)null);
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("RiskManagement.Models.Risk", b =>
@@ -355,7 +358,7 @@ namespace RiskManagement.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AssessedByUserId")
+                    b.Property<int?>("AssessedByUserId")
                         .HasColumnType("int")
                         .HasColumnName("assessed_by_user_id");
 
@@ -391,7 +394,7 @@ namespace RiskManagement.Migrations
                         .HasColumnType("varchar(50)")
                         .HasColumnName("risk_avoidance");
 
-                    b.Property<int>("RiskId")
+                    b.Property<int?>("RiskId")
                         .HasColumnType("int")
                         .HasColumnName("risk_id");
 
@@ -407,9 +410,9 @@ namespace RiskManagement.Migrations
                         .HasColumnType("int")
                         .HasColumnName("risk_score");
 
-                    b.Property<string>("RiskTransfer")
+                    b.Property<string>("RiskTransformation")
                         .HasColumnType("varchar(50)")
-                        .HasColumnName("risk_transfer");
+                        .HasColumnName("risk_transformation");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)")
@@ -607,7 +610,7 @@ namespace RiskManagement.Migrations
                     b.HasOne("RiskManagement.Models.User", "User")
                         .WithMany("RefreshTokens")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
                     b.Navigation("User");
@@ -643,8 +646,7 @@ namespace RiskManagement.Migrations
                     b.HasOne("RiskManagement.Models.User", "AssessedByUser")
                         .WithMany()
                         .HasForeignKey("AssessedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("RiskManagement.Models.Organization", "Organization")
                         .WithMany()
@@ -655,8 +657,7 @@ namespace RiskManagement.Migrations
                     b.HasOne("RiskManagement.Models.Risk", "Risk")
                         .WithMany()
                         .HasForeignKey("RiskId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("AssessedByUser");
 

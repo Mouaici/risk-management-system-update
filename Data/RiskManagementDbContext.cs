@@ -16,6 +16,7 @@ public class RiskManagementDbContext : DbContext
     public DbSet<UserProfileChangeRequest> UserProfileChangeRequests { get; set; }
     public DbSet<Incident> Incidents { get; set; }
     public DbSet<ActionPlan> ActionPlans { get; set; }
+    public DbSet<RiskAssessment> RiskAssessments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -188,7 +189,7 @@ public class RiskManagementDbContext : DbContext
             .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<RefreshToken>()
-            .ToTable("RefreshTokens")
+            .ToTable("refresh_token")
             .Property(refreshToken => refreshToken.Id)
             .HasColumnName("id");
 
@@ -232,7 +233,7 @@ public class RiskManagementDbContext : DbContext
             .HasOne(refreshToken => refreshToken.User)
             .WithMany(user => user.RefreshTokens)
             .HasForeignKey(refreshToken => refreshToken.UserId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<UserProfileChangeRequest>()
             .ToTable("user_profile_change_request")
@@ -337,7 +338,7 @@ public class RiskManagementDbContext : DbContext
             .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<ActionPlan>()
-            .ToTable("ActionPlan")
+            .ToTable("action_plan")
             .Property(ap => ap.Id)
             .HasColumnName("id");
 
@@ -408,7 +409,101 @@ public class RiskManagementDbContext : DbContext
      .WithMany(o => o.ActionPlans)
      .HasForeignKey(ap => ap.OrganizationId)
      .OnDelete(DeleteBehavior.Cascade)
-     .IsRequired(); 
+     .IsRequired();
+
+        modelBuilder.Entity<RiskAssessment>()
+            .ToTable("risk_assessment")
+            .Property(ra => ra.Id)
+            .HasColumnName("id");
+
+        modelBuilder.Entity<RiskAssessment>()
+            .Property(ra => ra.RiskId)
+            .HasColumnName("risk_id")
+            .IsRequired();
+
+        modelBuilder.Entity<RiskAssessment>()
+            .Property(ra => ra.AssessedByUserId)
+            .HasColumnName("assessed_by_user_id")
+            .IsRequired();
+
+        modelBuilder.Entity<RiskAssessment>()
+            .Property(ra => ra.OrganizationId)
+            .HasColumnName("organization_id");
+
+        modelBuilder.Entity<RiskAssessment>()
+            .Property(ra => ra.Notes)
+            .HasColumnName("notes");
+
+        modelBuilder.Entity<RiskAssessment>()
+            .Property(ra => ra.RiskPhase)
+            .HasColumnName("risk_phase")
+            .HasColumnType("varchar(100)");
+
+        modelBuilder.Entity<RiskAssessment>()
+            .Property(ra => ra.Likelihood1To5)
+            .HasColumnName("likelihood_1_5");
+
+        modelBuilder.Entity<RiskAssessment>()
+            .Property(ra => ra.Impact1To5)
+            .HasColumnName("impact_1_5");
+
+        modelBuilder.Entity<RiskAssessment>()
+            .Property(ra => ra.RiskScore)
+            .HasColumnName("risk_score");
+
+        modelBuilder.Entity<RiskAssessment>()
+            .Property(ra => ra.EconomicalLoss)
+            .HasColumnName("economical_loss")
+            .HasColumnType("decimal(12,2)");
+
+        modelBuilder.Entity<RiskAssessment>()
+            .Property(ra => ra.RiskMitigation)
+            .HasColumnName("risk_mitigation")
+            .HasColumnType("varchar(50)");
+
+        modelBuilder.Entity<RiskAssessment>()
+            .Property(ra => ra.RiskTransfer)
+            .HasColumnName("risk_transfer")
+            .HasColumnType("varchar(50)");
+
+        modelBuilder.Entity<RiskAssessment>()
+            .Property(ra => ra.RiskAvoidance)
+            .HasColumnName("risk_avoidance")
+            .HasColumnType("varchar(50)");
+
+        modelBuilder.Entity<RiskAssessment>()
+            .Property(ra => ra.RiskAcceptance)
+            .HasColumnName("risk_acceptance")
+            .HasColumnType("varchar(50)");
+
+        modelBuilder.Entity<RiskAssessment>()
+            .Property(ra => ra.CreatedAt)
+            .HasColumnName("created_at");
+
+        modelBuilder.Entity<RiskAssessment>()
+            .Property(ra => ra.UpdatedAt)
+            .HasColumnName("updated_at");
+
+        modelBuilder.Entity<RiskAssessment>()
+            .HasOne(ra => ra.Organization)
+            .WithMany()
+            .HasForeignKey(ra => ra.OrganizationId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired();
+
+        modelBuilder.Entity<RiskAssessment>()
+            .HasOne(ra => ra.Risk)
+            .WithMany()
+            .HasForeignKey(ra => ra.RiskId)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired();
+
+        modelBuilder.Entity<RiskAssessment>()
+            .HasOne(ra => ra.AssessedByUser)
+            .WithMany()
+            .HasForeignKey(ra => ra.AssessedByUserId)
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired();
 
         base.OnModelCreating(modelBuilder);
     }
