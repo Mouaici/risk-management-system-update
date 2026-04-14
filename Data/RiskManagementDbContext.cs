@@ -440,11 +440,11 @@ public class RiskManagementDbContext : DbContext
             .HasColumnType("varchar(100)");
 
         modelBuilder.Entity<RiskAssessment>()
-            .Property(ra => ra.Likelihood1To5)
+            .Property(ra => ra.Likelihood)
             .HasColumnName("likelihood_1_5");
 
         modelBuilder.Entity<RiskAssessment>()
-            .Property(ra => ra.Impact1To5)
+            .Property(ra => ra.Impact)
             .HasColumnName("impact_1_5");
 
         modelBuilder.Entity<RiskAssessment>()

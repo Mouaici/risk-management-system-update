@@ -4,20 +4,20 @@ public class RiskAssessment
 {
     public int Id { get; set; }
 
-    public int RiskId { get; set; }
-    public int AssessedByUserId { get; set; }
-    public int OrganizationId { get; set; }
+    public required int RiskId { get; set; }
+    public required int AssessedByUserId { get; set; }
+    public required int OrganizationId { get; set; }
 
-    public string? Notes { get; set; }
-    public string? RiskPhase { get; set; }
-    public int? Likelihood1To5 { get; set; }
-    public int? Impact1To5 { get; set; }
-    public int? RiskScore { get; set; }
-    public decimal? EconomicalLoss { get; set; }
-    public string? RiskMitigation { get; set; }
-    public string? RiskTransfer { get; set; }
-    public string? RiskAvoidance { get; set; }
-    public string? RiskAcceptance { get; set; }
+    public required string Notes { get; set; }
+    public required string RiskPhase { get; set; }
+    public required int Likelihood { get; set; }
+    public required int Impact { get; set; }
+    public required int RiskScore { get; set; }
+    public required decimal EconomicalLoss { get; set; }
+    public required string RiskMitigation { get; set; }
+    public required string RiskTransfer { get; set; }
+    public required string RiskAvoidance { get; set; }
+    public required string RiskAcceptance { get; set; }
 
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
