@@ -146,17 +146,6 @@ public class RiskAssessmentController(RiskManagementDbContext context, ICurrentU
             return NotFound();
         }
 
-        if (updateDto.RiskId.HasValue)
-        {
-            var riskId = await ValidateRiskAsync(organizationId, updateDto.RiskId.Value);
-            if (riskId is null)
-            {
-                return BadRequest("Risk must belong to the same organization.");
-            }
-
-            existing.RiskId = riskId.Value;
-        }
-
         if (updateDto.Notes is not null) existing.Notes = updateDto.Notes;
         if (updateDto.RiskPhase is not null) existing.RiskPhase = updateDto.RiskPhase;
         if (updateDto.Likelihood.HasValue) existing.Likelihood = updateDto.Likelihood.Value;

@@ -2,7 +2,6 @@ namespace RiskManagement.Dtos.RiskAssessment;
 
 public class UpdateRiskAssessmentRequest
 {
-    public int? RiskId { get; set; }
     public string? Notes { get; set; }
     public string? RiskPhase { get; set; }
     public int? Likelihood { get; set; }
