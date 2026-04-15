@@ -393,11 +393,11 @@ public class RiskManagementDbContext : DbContext
             .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<ActionPlan>()
-     .HasOne(ap => ap.Organization)
-     .WithMany(o => o.ActionPlans)
-     .HasForeignKey(ap => ap.OrganizationId)
-     .OnDelete(DeleteBehavior.Cascade)
-     .IsRequired();
+            .HasOne(ap => ap.Organization)
+            .WithMany(o => o.ActionPlans)
+            .HasForeignKey(ap => ap.OrganizationId)
+            .OnDelete(DeleteBehavior.Cascade)
+            .IsRequired();
 
         modelBuilder.Entity<RiskAssessment>()
             .ToTable("risk_assessment")
@@ -476,14 +476,14 @@ public class RiskManagementDbContext : DbContext
             .HasOne(ra => ra.Organization)
             .WithMany()
             .HasForeignKey(ra => ra.OrganizationId)
-            .OnDelete(DeleteBehavior.Cascade)
+            .OnDelete(DeleteBehavior.Restrict)
             .IsRequired();
 
         modelBuilder.Entity<RiskAssessment>()
             .HasOne(ra => ra.Risk)
             .WithMany( risk => risk.RiskAssessments)
             .HasForeignKey(ra => ra.RiskId)
-            .OnDelete(DeleteBehavior.Cascade)
+            .OnDelete(DeleteBehavior.Restrict)
             .IsRequired();
 
         modelBuilder.Entity<RiskAssessment>()

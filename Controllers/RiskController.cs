@@ -15,9 +15,7 @@ public class RiskController(RiskManagementDbContext context, ICurrentUserService
     [HttpGet]
     public async Task<ActionResult<List<RiskResponse>>> GetRisks(
         [FromQuery] string? status,
-        [FromQuery] int? ownerUserId,
-        [FromQuery] int? minScore,
-        [FromQuery] int? maxScore)
+        [FromQuery] int? ownerUserId)
     {
         var organizationId = currentUserService.GetRequiredOrganizationId();
 
