@@ -12,9 +12,8 @@ public class UpdateRiskAssessmentRequest
     [Range(1, 5)]
     public int? Impact { get; set; }
 
-    [Required]
     [RegularExpression("^(Low|Medium|High)$")]
-    public string? EconomicalLoss { get; set; } = string.Empty;
+    public string? EconomicalLoss { get; set; }
     public string? RiskMitigation { get; set; }
     public string? RiskTransfer { get; set; }
     public string? RiskAvoidance { get; set; }
