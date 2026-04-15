@@ -99,6 +99,10 @@ public class RiskAssessmentController(RiskManagementDbContext context, ICurrentU
         {
             return BadRequest("Risk must belong to the same organization.");
         }
+        if( createDto.EconomicalLoss.ToLower() != "low" && createDto.EconomicalLoss.ToLower() != "medium" && createDto.EconomicalLoss.ToLower() != "high")
+        {
+            return BadRequest("Economical loss must be Low, Medium or High.");
+        }
 
         var now = DateTime.UtcNow;
         var entity = new RiskAssessment
@@ -145,12 +149,16 @@ public class RiskAssessmentController(RiskManagementDbContext context, ICurrentU
         {
             return NotFound();
         }
+        if( updateDto.EconomicalLoss is not null && updateDto.EconomicalLoss.ToLower() != "low" && updateDto.EconomicalLoss.ToLower() != "medium" && updateDto.EconomicalLoss.ToLower() != "high")
+        {
+            return BadRequest("Economical loss must be Low, Medium or High.");
+        }
 
         if (updateDto.Notes is not null) existing.Notes = updateDto.Notes;
         if (updateDto.RiskPhase is not null) existing.RiskPhase = updateDto.RiskPhase;
         if (updateDto.Likelihood.HasValue) existing.Likelihood = updateDto.Likelihood.Value;
         if (updateDto.Impact.HasValue) existing.Impact = updateDto.Impact.Value;
-        if (updateDto.EconomicalLoss.HasValue) existing.EconomicalLoss = updateDto.EconomicalLoss.Value;
+        if (updateDto.EconomicalLoss is not null) existing.EconomicalLoss = updateDto.EconomicalLoss;
         if (updateDto.RiskMitigation is not null) existing.RiskMitigation = updateDto.RiskMitigation;
         if (updateDto.RiskTransfer is not null) existing.RiskTransfer = updateDto.RiskTransfer;
         if (updateDto.RiskAvoidance is not null) existing.RiskAvoidance = updateDto.RiskAvoidance;

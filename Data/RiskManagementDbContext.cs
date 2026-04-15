@@ -442,7 +442,7 @@ public class RiskManagementDbContext : DbContext
         modelBuilder.Entity<RiskAssessment>()
             .Property(ra => ra.EconomicalLoss)
             .HasColumnName("economical_loss")
-            .HasColumnType("decimal(12,2)");
+            .HasColumnType("varchar(50)");
 
         modelBuilder.Entity<RiskAssessment>()
             .Property(ra => ra.RiskMitigation)
