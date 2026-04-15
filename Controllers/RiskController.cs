@@ -166,6 +166,22 @@ public class RiskController(RiskManagementDbContext context, ICurrentUserService
         return Ok(Map(risk));
     }
 
+    [HttpDelete("{id:int}")]
+    [Authorize(Policy = "SuperadminOnly")]
+    public async Task<IActionResult> DeleteRisk(int id)
+    {
+        var organizationId = currentUserService.GetRequiredOrganizationId();
+        var risk = await context.Risks.FirstOrDefaultAsync(existingRisk => existingRisk.Id == id && existingRisk.OrganizationId == organizationId);
+        if (risk is null)
+        {
+            return NotFound();
+        }
+
+        context.Risks.Remove(risk);
+        await context.SaveChangesAsync();
+        return NoContent();
+    }
+
     private async Task<int?> ValidateOwnerAsync(int organizationId, int? ownerUserId)
     {
         if (!ownerUserId.HasValue)
