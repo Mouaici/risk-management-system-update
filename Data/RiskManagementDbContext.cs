@@ -157,18 +157,6 @@ public class RiskManagementDbContext : DbContext
             .HasColumnName("risk_status");
 
         modelBuilder.Entity<Risk>()
-            .Property(risk => risk.Likelihood)
-            .HasColumnName("likelihood");
-
-        modelBuilder.Entity<Risk>()
-            .Property(risk => risk.Impact)
-            .HasColumnName("impact");
-
-        modelBuilder.Entity<Risk>()
-            .Property(risk => risk.Score)
-            .HasColumnName("score");
-
-        modelBuilder.Entity<Risk>()
             .Property(risk => risk.CreatedAt)
             .HasColumnName("created_at");
 
@@ -493,9 +481,9 @@ public class RiskManagementDbContext : DbContext
 
         modelBuilder.Entity<RiskAssessment>()
             .HasOne(ra => ra.Risk)
-            .WithMany()
+            .WithMany( risk => risk.RiskAssessments)
             .HasForeignKey(ra => ra.RiskId)
-            .OnDelete(DeleteBehavior.Restrict)
+            .OnDelete(DeleteBehavior.Cascade)
             .IsRequired();
 
         modelBuilder.Entity<RiskAssessment>()
