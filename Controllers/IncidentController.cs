@@ -9,7 +9,7 @@ namespace RiskManagement.Controllers;
 
 [ApiController]
 [Route("api/incidents")]
-[Authorize(Policy = "AnyAuthenticatedUser")]
+[Authorize]
 public class IncidentController(RiskManagementDbContext context, ICurrentUserService currentUserService) : ControllerBase
 {
     [HttpGet]
@@ -62,7 +62,7 @@ public class IncidentController(RiskManagementDbContext context, ICurrentUserSer
     }
 
     [HttpPost]
-    
+
     public async Task<ActionResult<IncidentResponse>> CreateIncident([FromBody] CreateIncidentRequest request)
     {
         var orgId = currentUserService.GetRequiredOrganizationId();
@@ -85,7 +85,7 @@ public class IncidentController(RiskManagementDbContext context, ICurrentUserSer
     }
 
     [HttpPut("{id:int}")]
-    
+
     public async Task<ActionResult<IncidentResponse>> UpdateIncident(int id, [FromBody] UpdateIncidentRequest request)
     {
         var orgId = currentUserService.GetRequiredOrganizationId();

@@ -9,7 +9,7 @@ namespace RiskManagement.Controllers;
 
 [ApiController]
 [Route("api/risk-assessment")]
-[Authorize(Policy = "AnyAuthenticatedUser")]
+[Authorize]
 public class RiskAssessmentController(RiskManagementDbContext context, ICurrentUserService currentUserService) : ControllerBase
 {
     [HttpGet]

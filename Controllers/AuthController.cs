@@ -22,6 +22,7 @@ public class AuthController(
         : 7;
 
     [HttpPost("register")]
+    [Authorize(Policy = "AdminOrSuperadmin")]
 
     public async Task<IActionResult> Register([FromBody] RegisterRequest request)
     {
@@ -134,7 +135,7 @@ public class AuthController(
     }
 
     [HttpPost("logout")]
-    [Authorize(Policy = "AnyAuthenticatedUser")]
+    [Authorize]
     public async Task<IActionResult> Logout()
     {
         if (Request.Cookies.TryGetValue(RefreshCookieName, out var rawRefreshToken) &&

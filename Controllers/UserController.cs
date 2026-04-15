@@ -9,7 +9,7 @@ namespace RiskManagement.Controllers;
 
 [ApiController]
 [Route("api/users")]
-[Authorize(Policy = "AnyAuthenticatedUser")]
+[Authorize]
 public class UserController(
     RiskManagementDbContext context,
     ICurrentUserService currentUserService,

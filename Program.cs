@@ -103,16 +103,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization(options =>
 {
-    var adminOnlyPolicy = new AuthorizationPolicyBuilder()
+    var anyAuthenticatedUserPolicy = new AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
-        .RequireRole("Admin", "Superadmin")
         .Build();
 
-    options.DefaultPolicy = adminOnlyPolicy;
-    options.FallbackPolicy = adminOnlyPolicy;
+    options.DefaultPolicy = anyAuthenticatedUserPolicy;
+    options.FallbackPolicy = anyAuthenticatedUserPolicy;
 
     options.AddPolicy("AnyAuthenticatedUser", policy =>
         policy.RequireAuthenticatedUser());
+
+    options.AddPolicy("AdminOrSuperadmin", policy =>
+        policy.RequireAuthenticatedUser().RequireRole("Admin", "Superadmin"));
 
     options.AddPolicy("SuperadminOnly", policy =>
         policy.RequireAuthenticatedUser().RequireRole("Superadmin"));
