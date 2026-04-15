@@ -7,7 +7,6 @@ public class CreateRiskAssessmentRequest
     public string RiskPhase { get; set; } = string.Empty;
     public int Likelihood { get; set; }
     public int Impact { get; set; }
-    public int RiskScore { get; set; }
     public decimal EconomicalLoss { get; set; }
     public string RiskMitigation { get; set; } = string.Empty;
     public string RiskTransfer { get; set; } = string.Empty;

@@ -7,7 +7,6 @@ public class UpdateRiskAssessmentRequest
     public string? RiskPhase { get; set; }
     public int? Likelihood { get; set; }
     public int? Impact { get; set; }
-    public int? RiskScore { get; set; }
     public decimal? EconomicalLoss { get; set; }
     public string? RiskMitigation { get; set; }
     public string? RiskTransfer { get; set; }

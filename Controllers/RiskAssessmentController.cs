@@ -110,7 +110,7 @@ public class RiskAssessmentController(RiskManagementDbContext context, ICurrentU
             RiskPhase = createDto.RiskPhase,
             Likelihood = createDto.Likelihood,
             Impact = createDto.Impact,
-            RiskScore = createDto.RiskScore,
+            RiskScore = createDto.Likelihood * createDto.Impact,
             EconomicalLoss = createDto.EconomicalLoss,
             RiskMitigation = createDto.RiskMitigation,
             RiskTransfer = createDto.RiskTransfer,
@@ -161,13 +161,13 @@ public class RiskAssessmentController(RiskManagementDbContext context, ICurrentU
         if (updateDto.RiskPhase is not null) existing.RiskPhase = updateDto.RiskPhase;
         if (updateDto.Likelihood.HasValue) existing.Likelihood = updateDto.Likelihood.Value;
         if (updateDto.Impact.HasValue) existing.Impact = updateDto.Impact.Value;
-        if (updateDto.RiskScore.HasValue) existing.RiskScore = updateDto.RiskScore.Value;
         if (updateDto.EconomicalLoss.HasValue) existing.EconomicalLoss = updateDto.EconomicalLoss.Value;
         if (updateDto.RiskMitigation is not null) existing.RiskMitigation = updateDto.RiskMitigation;
         if (updateDto.RiskTransfer is not null) existing.RiskTransfer = updateDto.RiskTransfer;
         if (updateDto.RiskAvoidance is not null) existing.RiskAvoidance = updateDto.RiskAvoidance;
         if (updateDto.RiskAcceptance is not null) existing.RiskAcceptance = updateDto.RiskAcceptance;
 
+        existing.RiskScore = existing.Likelihood * existing.Impact;
         existing.AssessedByUserId = assessedByUserId;
         existing.UpdatedAt = DateTime.UtcNow;
 

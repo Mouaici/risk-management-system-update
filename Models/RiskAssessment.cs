@@ -12,7 +12,7 @@ public class RiskAssessment
     public required string RiskPhase { get; set; }
     public required int Likelihood { get; set; }
     public required int Impact { get; set; }
-    public required int RiskScore { get; set; }
+    public int RiskScore { get; set; }
     public required decimal EconomicalLoss { get; set; }
     public required string RiskMitigation { get; set; }
     public required string RiskTransfer { get; set; }
