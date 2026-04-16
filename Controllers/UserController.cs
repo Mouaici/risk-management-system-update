@@ -16,6 +16,7 @@ public class UserController(
     IPasswordService passwordService) : ControllerBase
 {
     [HttpGet]
+    [Authorize(Policy = "AdminOrSuperadmin")]
     public async Task<ActionResult<List<UserResponse>>> GetUsers()
     {
         var role = currentUserService.GetRequiredRole();
@@ -51,7 +52,9 @@ public class UserController(
         return Ok(users);
     }
 
+
     [HttpGet("{id:int}")]
+    [Authorize(Policy = "AdminOrSuperadmin")]
     public async Task<ActionResult<UserResponse>> GetUserById(int id)
     {
         var role = currentUserService.GetRequiredRole();

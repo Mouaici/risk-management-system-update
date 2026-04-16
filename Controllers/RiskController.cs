@@ -13,7 +13,7 @@ namespace RiskManagement.Controllers;
 public class RiskController(RiskManagementDbContext context, ICurrentUserService currentUserService) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<List<RiskResponse>>> GetRisks(
+        public async Task<ActionResult<List<RiskResponse>>> GetRisks(
         [FromQuery] string? status,
         [FromQuery] int? ownerUserId)
     {
