@@ -9,7 +9,7 @@ namespace RiskManagement.Controllers;
 
 [ApiController]
 [Route("api/asset")]
-[Authorize(Policy = "AnyAuthenticatedUser")]
+[Authorize]
 public class AssetController(RiskManagementDbContext context, ICurrentUserService currentUserService) : ControllerBase
 {
     [HttpGet]
@@ -75,7 +75,7 @@ public class AssetController(RiskManagementDbContext context, ICurrentUserServic
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin,Superadmin")]
+    [Authorize(Policy = "AdminOrSuperadmin")]
     public async Task<ActionResult<AssetResponse>> CreateAsset([FromBody] CreateAssetRequest request)
     {
         var role = currentUserService.GetRequiredRole();
@@ -118,7 +118,7 @@ public class AssetController(RiskManagementDbContext context, ICurrentUserServic
     }
 
     [HttpPut("{id:int}")]
-    [Authorize(Roles = "Admin,Superadmin")]
+    [Authorize(Policy = "AdminOrSuperadmin")]
     public async Task<ActionResult<AssetResponse>> UpdateAsset(int id, [FromBody] UpdateAssetRequest request)
     {
         var role = currentUserService.GetRequiredRole();
@@ -147,7 +147,7 @@ public class AssetController(RiskManagementDbContext context, ICurrentUserServic
     }
 
     [HttpDelete("{id:int}")]
-    [Authorize(Roles = "Superadmin")]
+    [Authorize(Policy = "SuperadminOnly")]
     public async Task<IActionResult> DeleteAsset(int id)
     {
         var asset = await context.Assets.FirstOrDefaultAsync(a => a.Id == id);

@@ -9,13 +9,14 @@ namespace RiskManagement.Controllers;
 
 [ApiController]
 [Route("api/users")]
-[Authorize(Policy = "AnyAuthenticatedUser")]
+[Authorize]
 public class UserController(
     RiskManagementDbContext context,
     ICurrentUserService currentUserService,
     IPasswordService passwordService) : ControllerBase
 {
     [HttpGet]
+    [Authorize(Policy = "AdminOrSuperadmin")]
     public async Task<ActionResult<List<UserResponse>>> GetUsers()
     {
         var role = currentUserService.GetRequiredRole();
@@ -51,7 +52,9 @@ public class UserController(
         return Ok(users);
     }
 
+
     [HttpGet("{id:int}")]
+    [Authorize(Policy = "AdminOrSuperadmin")]
     public async Task<ActionResult<UserResponse>> GetUserById(int id)
     {
         var role = currentUserService.GetRequiredRole();
@@ -224,6 +227,21 @@ public class UserController(
 
         await context.SaveChangesAsync();
         return Ok(Map(user));
+    }
+
+    [HttpDelete("{id:int}")]
+    [Authorize(Policy = "SuperadminOnly")]
+    public async Task<IActionResult> DeleteUser(int id)
+    {
+        var user = await context.Users.FirstOrDefaultAsync(existingUser => existingUser.Id == id);
+        if (user is null)
+        {
+            return NotFound();
+        }
+
+        context.Users.Remove(user);
+        await context.SaveChangesAsync();
+        return NoContent();
     }
 
     private static bool IsSuperadmin(string role) => role.Equals("Superadmin", StringComparison.OrdinalIgnoreCase);

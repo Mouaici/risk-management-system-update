@@ -13,7 +13,7 @@ namespace RiskManagement.Controllers;
 public class RiskController(RiskManagementDbContext context, ICurrentUserService currentUserService) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<List<RiskResponse>>> GetRisks(
+        public async Task<ActionResult<List<RiskResponse>>> GetRisks(
         [FromQuery] string? status,
         [FromQuery] int? ownerUserId)
     {
@@ -164,6 +164,22 @@ public class RiskController(RiskManagementDbContext context, ICurrentUserService
 
         await context.SaveChangesAsync();
         return Ok(Map(risk));
+    }
+
+    [HttpDelete("{id:int}")]
+    [Authorize(Policy = "SuperadminOnly")]
+    public async Task<IActionResult> DeleteRisk(int id)
+    {
+        var organizationId = currentUserService.GetRequiredOrganizationId();
+        var risk = await context.Risks.FirstOrDefaultAsync(existingRisk => existingRisk.Id == id && existingRisk.OrganizationId == organizationId);
+        if (risk is null)
+        {
+            return NotFound();
+        }
+
+        context.Risks.Remove(risk);
+        await context.SaveChangesAsync();
+        return NoContent();
     }
 
     private async Task<int?> ValidateOwnerAsync(int organizationId, int? ownerUserId)
