@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace RiskManagement.Migrations
 {
     [DbContext(typeof(RiskManagementDbContext))]
-    partial class RiskManagementDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260415093836_RemoveLikelihoodImpactFromRisk_AddRiskAssessmentsNavigation")]
+    partial class RemoveLikelihoodImpactFromRisk_AddRiskAssessmentsNavigation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -351,9 +354,8 @@ namespace RiskManagement.Migrations
                         .HasColumnType("datetime(6)")
                         .HasColumnName("created_at");
 
-                    b.Property<string>("EconomicalLoss")
-                        .IsRequired()
-                        .HasColumnType("varchar(50)")
+                    b.Property<decimal>("EconomicalLoss")
+                        .HasColumnType("decimal(12,2)")
                         .HasColumnName("economical_loss");
 
                     b.Property<int>("Impact")

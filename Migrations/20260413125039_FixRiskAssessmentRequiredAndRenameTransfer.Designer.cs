@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace RiskManagement.Migrations
 {
     [DbContext(typeof(RiskManagementDbContext))]
-    partial class RiskManagementDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260413125039_FixRiskAssessmentRequiredAndRenameTransfer")]
+    partial class FixRiskAssessmentRequiredAndRenameTransfer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -84,7 +87,7 @@ namespace RiskManagement.Migrations
 
                     b.HasIndex("RiskId");
 
-                    b.ToTable("action_plan", (string)null);
+                    b.ToTable("ActionPlan", (string)null);
                 });
 
             modelBuilder.Entity("RiskManagement.Models.Asset", b =>
@@ -277,7 +280,7 @@ namespace RiskManagement.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("refresh_token", (string)null);
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("RiskManagement.Models.Risk", b =>
@@ -301,6 +304,14 @@ namespace RiskManagement.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("risk_definition");
 
+                    b.Property<int>("Impact")
+                        .HasColumnType("int")
+                        .HasColumnName("impact");
+
+                    b.Property<int>("Likelihood")
+                        .HasColumnType("int")
+                        .HasColumnName("likelihood");
+
                     b.Property<int>("OrganizationId")
                         .HasColumnType("int")
                         .HasColumnName("organization_id");
@@ -308,6 +319,10 @@ namespace RiskManagement.Migrations
                     b.Property<int?>("OwnerUserId")
                         .HasColumnType("int")
                         .HasColumnName("risk_owner_user_id");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int")
+                        .HasColumnName("score");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -351,21 +366,19 @@ namespace RiskManagement.Migrations
                         .HasColumnType("datetime(6)")
                         .HasColumnName("created_at");
 
-                    b.Property<string>("EconomicalLoss")
-                        .IsRequired()
-                        .HasColumnType("varchar(50)")
+                    b.Property<decimal?>("EconomicalLoss")
+                        .HasColumnType("decimal(12,2)")
                         .HasColumnName("economical_loss");
 
-                    b.Property<int>("Impact")
+                    b.Property<int?>("Impact1To5")
                         .HasColumnType("int")
                         .HasColumnName("impact_1_5");
 
-                    b.Property<int>("Likelihood")
+                    b.Property<int?>("Likelihood1To5")
                         .HasColumnType("int")
                         .HasColumnName("likelihood_1_5");
 
                     b.Property<string>("Notes")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("notes");
 
@@ -374,12 +387,10 @@ namespace RiskManagement.Migrations
                         .HasColumnName("organization_id");
 
                     b.Property<string>("RiskAcceptance")
-                        .IsRequired()
                         .HasColumnType("varchar(50)")
                         .HasColumnName("risk_acceptance");
 
                     b.Property<string>("RiskAvoidance")
-                        .IsRequired()
                         .HasColumnType("varchar(50)")
                         .HasColumnName("risk_avoidance");
 
@@ -388,21 +399,18 @@ namespace RiskManagement.Migrations
                         .HasColumnName("risk_id");
 
                     b.Property<string>("RiskMitigation")
-                        .IsRequired()
                         .HasColumnType("varchar(50)")
                         .HasColumnName("risk_mitigation");
 
                     b.Property<string>("RiskPhase")
-                        .IsRequired()
                         .HasColumnType("varchar(100)")
                         .HasColumnName("risk_phase");
 
-                    b.Property<int>("RiskScore")
+                    b.Property<int?>("RiskScore")
                         .HasColumnType("int")
                         .HasColumnName("risk_score");
 
                     b.Property<string>("RiskTransfer")
-                        .IsRequired()
                         .HasColumnType("varchar(50)")
                         .HasColumnName("risk_transfer");
 
@@ -602,7 +610,7 @@ namespace RiskManagement.Migrations
                     b.HasOne("RiskManagement.Models.User", "User")
                         .WithMany("RefreshTokens")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.SetNull)
                         .IsRequired();
 
                     b.Navigation("User");
@@ -644,11 +652,11 @@ namespace RiskManagement.Migrations
                     b.HasOne("RiskManagement.Models.Organization", "Organization")
                         .WithMany()
                         .HasForeignKey("OrganizationId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("RiskManagement.Models.Risk", "Risk")
-                        .WithMany("RiskAssessments")
+                        .WithMany()
                         .HasForeignKey("RiskId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -715,8 +723,6 @@ namespace RiskManagement.Migrations
             modelBuilder.Entity("RiskManagement.Models.Risk", b =>
                 {
                     b.Navigation("ActionPlans");
-
-                    b.Navigation("RiskAssessments");
                 });
 
             modelBuilder.Entity("RiskManagement.Models.User", b =>

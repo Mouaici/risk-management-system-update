@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace RiskManagement.Migrations
 {
     [DbContext(typeof(RiskManagementDbContext))]
-    partial class RiskManagementDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260414092941_set_not_null_on_all_columns_in_risk_assessment_table")]
+    partial class set_not_null_on_all_columns_in_risk_assessment_table
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -301,6 +304,14 @@ namespace RiskManagement.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("risk_definition");
 
+                    b.Property<int>("Impact")
+                        .HasColumnType("int")
+                        .HasColumnName("impact");
+
+                    b.Property<int>("Likelihood")
+                        .HasColumnType("int")
+                        .HasColumnName("likelihood");
+
                     b.Property<int>("OrganizationId")
                         .HasColumnType("int")
                         .HasColumnName("organization_id");
@@ -308,6 +319,10 @@ namespace RiskManagement.Migrations
                     b.Property<int?>("OwnerUserId")
                         .HasColumnType("int")
                         .HasColumnName("risk_owner_user_id");
+
+                    b.Property<int>("Score")
+                        .HasColumnType("int")
+                        .HasColumnName("score");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -351,9 +366,8 @@ namespace RiskManagement.Migrations
                         .HasColumnType("datetime(6)")
                         .HasColumnName("created_at");
 
-                    b.Property<string>("EconomicalLoss")
-                        .IsRequired()
-                        .HasColumnType("varchar(50)")
+                    b.Property<decimal>("EconomicalLoss")
+                        .HasColumnType("decimal(12,2)")
                         .HasColumnName("economical_loss");
 
                     b.Property<int>("Impact")
@@ -644,11 +658,11 @@ namespace RiskManagement.Migrations
                     b.HasOne("RiskManagement.Models.Organization", "Organization")
                         .WithMany()
                         .HasForeignKey("OrganizationId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("RiskManagement.Models.Risk", "Risk")
-                        .WithMany("RiskAssessments")
+                        .WithMany()
                         .HasForeignKey("RiskId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -715,8 +729,6 @@ namespace RiskManagement.Migrations
             modelBuilder.Entity("RiskManagement.Models.Risk", b =>
                 {
                     b.Navigation("ActionPlans");
-
-                    b.Navigation("RiskAssessments");
                 });
 
             modelBuilder.Entity("RiskManagement.Models.User", b =>

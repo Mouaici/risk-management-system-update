@@ -9,9 +9,6 @@ public class RiskResponse
     public int? OwnerUserId { get; set; }
     public int? AssetId { get; set; }
     public string Status { get; set; } = string.Empty;
-    public int Likelihood { get; set; }
-    public int Impact { get; set; }
-    public int Score { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }

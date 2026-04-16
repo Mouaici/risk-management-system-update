@@ -15,9 +15,7 @@ public class RiskController(RiskManagementDbContext context, ICurrentUserService
     [HttpGet]
     public async Task<ActionResult<List<RiskResponse>>> GetRisks(
         [FromQuery] string? status,
-        [FromQuery] int? ownerUserId,
-        [FromQuery] int? minScore,
-        [FromQuery] int? maxScore)
+        [FromQuery] int? ownerUserId)
     {
         var organizationId = currentUserService.GetRequiredOrganizationId();
 
@@ -35,19 +33,9 @@ public class RiskController(RiskManagementDbContext context, ICurrentUserService
             query = query.Where(r => r.OwnerUserId == ownerUserId.Value);
         }
 
-        if (minScore.HasValue)
-        {
-            query = query.Where(r => r.Score >= minScore.Value);
-        }
-
-        if (maxScore.HasValue)
-        {
-            query = query.Where(r => r.Score <= maxScore.Value);
-        }
 
         var risks = await query
-            .OrderByDescending(r => r.Score)
-            .ThenByDescending(r => r.UpdatedAt)
+            .OrderByDescending(r => r.UpdatedAt)
             .Select(r => new RiskResponse
             {
                 Id = r.Id,
@@ -57,9 +45,6 @@ public class RiskController(RiskManagementDbContext context, ICurrentUserService
                 OwnerUserId = r.OwnerUserId,
                 AssetId = r.AssetId,
                 Status = r.Status,
-                Likelihood = r.Likelihood,
-                Impact = r.Impact,
-                Score = r.Score,
                 CreatedAt = r.CreatedAt,
                 UpdatedAt = r.UpdatedAt
             })
@@ -85,9 +70,6 @@ public class RiskController(RiskManagementDbContext context, ICurrentUserService
                 OwnerUserId = r.OwnerUserId,
                 AssetId = r.AssetId,
                 Status = r.Status,
-                Likelihood = r.Likelihood,
-                Impact = r.Impact,
-                Score = r.Score,
                 CreatedAt = r.CreatedAt,
                 UpdatedAt = r.UpdatedAt
             })
@@ -125,9 +107,6 @@ public class RiskController(RiskManagementDbContext context, ICurrentUserService
             OwnerUserId = ownerUserId,
             AssetId = assetId,
             Status = request.Status,
-            Likelihood = request.Likelihood,
-            Impact = request.Impact,
-            Score = request.Likelihood * request.Impact,
             CreatedAt = now,
             UpdatedAt = now
         };
@@ -164,9 +143,6 @@ public class RiskController(RiskManagementDbContext context, ICurrentUserService
         risk.OwnerUserId = ownerUserId;
         risk.AssetId = assetId;
         risk.Status = request.Status;
-        risk.Likelihood = request.Likelihood;
-        risk.Impact = request.Impact;
-        risk.Score = request.Likelihood * request.Impact;
         risk.UpdatedAt = DateTime.UtcNow;
 
         await context.SaveChangesAsync();
@@ -223,9 +199,6 @@ public class RiskController(RiskManagementDbContext context, ICurrentUserService
             OwnerUserId = risk.OwnerUserId,
             AssetId = risk.AssetId,
             Status = risk.Status,
-            Likelihood = risk.Likelihood,
-            Impact = risk.Impact,
-            Score = risk.Score,
             CreatedAt = risk.CreatedAt,
             UpdatedAt = risk.UpdatedAt
         };

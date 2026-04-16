@@ -9,9 +9,6 @@ public class Risk
     public int? OwnerUserId { get; set; }
     public int? AssetId { get; set; }
     public required string Status { get; set; }
-    public int Likelihood { get; set; }
-    public int Impact { get; set; }
-    public int Score { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
@@ -19,5 +16,6 @@ public class Risk
     public User? OwnerUser { get; set; }
     public Asset? Asset { get; set; }
     public List<ActionPlan> ActionPlans { get; set; } = [];
+    public List<RiskAssessment> RiskAssessments { get; set; } = [];
 }
 

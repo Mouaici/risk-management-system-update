@@ -19,10 +19,5 @@ public class CreateRiskRequest
     [RegularExpression("^(Open|InProgress|Mitigated|Accepted|Closed)$")]
     public string Status { get; set; } = "Open";
 
-    [Range(1, 5)]
-    public int Likelihood { get; set; }
-
-    [Range(1, 5)]
-    public int Impact { get; set; }
 }
 
