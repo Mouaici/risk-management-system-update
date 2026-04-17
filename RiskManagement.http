@@ -1,6 +1,6 @@
 @RiskManagement_HostAddress = http://localhost:5263
 
-GET {{RiskManagement_HostAddress}}/weatherforecast/
+GET {{RiskManagement_HostAddress}}/
 Accept: application/json
 
 ###
