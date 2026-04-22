@@ -2,6 +2,7 @@ using System;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -23,6 +24,17 @@ var jwtAudience = builder.Configuration["Jwt:Audience"]
 var jwtSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
 
 Console.WriteLine("Hello, World!");
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendCors", policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
 
 // TESTING THE RULES
 
@@ -126,17 +138,6 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<AppSeedService>();
 
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("FrontendCors", policy =>
-    {
-        policy.WithOrigins(allowedOrigins)
-            .AllowAnyHeader()
-            .AllowAnyMethod()
-            .AllowCredentials();
-    });
-});
 
 builder.Services.AddControllers();
 var app = builder.Build();
@@ -160,6 +161,59 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseCors("FrontendCors");
+
+var allowedOriginSet = new HashSet<string>(allowedOrigins, StringComparer.OrdinalIgnoreCase);
+app.Use(async (context, next) =>
+{
+    var method = context.Request.Method;
+    var isUnsafeMethod = !(HttpMethods.IsGet(method) || HttpMethods.IsHead(method) || HttpMethods.IsOptions(method));
+
+    if (!isUnsafeMethod)
+    {
+        await next();
+        return;
+    }
+
+    var path = context.Request.Path.Value ?? string.Empty;
+    var isAuthCookieEndpoint =
+        path.Equals("/api/auth/refresh", StringComparison.OrdinalIgnoreCase) ||
+        path.Equals("/api/auth/logout", StringComparison.OrdinalIgnoreCase);
+
+    if (!isAuthCookieEndpoint)
+    {
+        await next();
+        return;
+    }
+
+    var origin = context.Request.Headers.Origin.ToString();
+    if (!string.IsNullOrWhiteSpace(origin))
+    {
+        if (!allowedOriginSet.Contains(origin))
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            await context.Response.WriteAsync("CSRF blocked: invalid Origin.");
+            return;
+        }
+
+        await next();
+        return;
+    }
+
+    var referer = context.Request.Headers.Referer.ToString();
+    var refererAllowed = !string.IsNullOrWhiteSpace(referer) &&
+                         allowedOrigins.Any(allowed =>
+                             referer.StartsWith(allowed, StringComparison.OrdinalIgnoreCase));
+
+    if (!refererAllowed)
+    {
+        context.Response.StatusCode = StatusCodes.Status403Forbidden;
+        await context.Response.WriteAsync("CSRF blocked: missing/invalid Referer.");
+        return;
+    }
+
+    await next();
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

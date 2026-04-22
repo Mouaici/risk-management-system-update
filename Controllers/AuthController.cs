@@ -16,6 +16,7 @@ public class AuthController(
     IConfiguration configuration) : ControllerBase
 {
     private const string RefreshCookieName = "refreshToken";
+    private const string RefreshCookiePath = "/api/auth";
 
     private readonly int _refreshTokenDays = int.TryParse(configuration["Jwt:RefreshTokenDays"], out var days)
         ? days
@@ -152,7 +153,10 @@ public class AuthController(
             }
         }
 
-        Response.Cookies.Delete(RefreshCookieName);
+        Response.Cookies.Delete(RefreshCookieName, new CookieOptions
+        {
+            Path = RefreshCookiePath
+        });
         return NoContent();
     }
 
@@ -198,9 +202,10 @@ public class AuthController(
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Secure = Request.IsHttps,
-            SameSite = SameSiteMode.Lax,
-            Expires = expiresAt
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Expires = expiresAt,
+            Path = RefreshCookiePath
         };
 
         Response.Cookies.Append(RefreshCookieName, refreshToken, cookieOptions);
