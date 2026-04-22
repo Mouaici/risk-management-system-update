@@ -16,7 +16,7 @@ public class UserController(
     IPasswordService passwordService) : ControllerBase
 {
     [HttpGet]
-    [Authorize(Policy = "AdminOrSuperadmin")]
+   
     public async Task<ActionResult<List<UserResponse>>> GetUsers()
     {
         var role = currentUserService.GetRequiredRole();
@@ -121,6 +121,48 @@ public class UserController(
         return Ok(user);
     }
 
+    [HttpPost]
+    [Authorize(Policy = "SuperadminOnly")]
+    public async Task<ActionResult<UserResponse>> CreateUser([FromBody] CreateUserRequest request)
+    {
+        // Prevent creating Superadmins
+        if (request.Role.Equals("Superadmin", StringComparison.OrdinalIgnoreCase))
+        {
+            return BadRequest("Creating Superadmin users is not allowed.");
+        }
+
+        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
+
+        var emailExists = await context.Users
+            .AnyAsync(x => x.Email == normalizedEmail);
+
+        if (emailExists)
+        {
+            return Conflict("Email already exists.");
+        }
+
+        var now = DateTime.UtcNow;
+
+        var user = new User
+        {
+            FirstName = request.FirstName.Trim(),
+            LastName = request.LastName.Trim(),
+            Email = normalizedEmail,
+            Role = request.Role,
+            Status = request.Status,
+            OrganizationId = request.OrganizationId,
+            CreatedAt = now,
+            UpdatedAt = now,
+            PasswordHash = ""
+        };
+
+        user.PasswordHash = passwordService.HashPassword(user, request.Password);
+
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
+
+        return Ok(Map(user));
+    }
     [HttpPut("{id:int}")]
     public async Task<ActionResult<UserResponse>> UpdateUser(int id, [FromBody] UpdateUserRequest request)
     {
