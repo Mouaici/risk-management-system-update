@@ -31,6 +31,28 @@ public class OrganizationController(RiskManagementDbContext context, ICurrentUse
         return Ok(organization);
     }
 
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetOrganizationById(int id)
+    {
+        var role = currentUserService.GetRequiredRole();
+        var currentOrgId = currentUserService.GetRequiredOrganizationId();
+
+        // Only Superadmin has full access
+        if (!IsSuperadmin(role) && id != currentOrgId)
+        {
+            return Forbid();
+        }
+
+        var organization = await context.Organizations
+            .AsNoTracking()
+            .FirstOrDefaultAsync(o => o.Id == id);
+
+        if (organization is null)
+            return NotFound();
+
+        return Ok(organization);
+    }
+
     [HttpPost]
     [Authorize(Policy = "SuperadminOnly")]
     public async Task<ActionResult<Organization>> AddOrganization([FromBody] RiskManagement.Dtos.Organization.CreateOrganizationRequest request)
