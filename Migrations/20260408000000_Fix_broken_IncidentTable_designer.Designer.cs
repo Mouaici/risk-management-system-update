@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace RiskManagement.Migrations
 {
     [DbContext(typeof(RiskManagementDbContext))]
-    [Migration("20260414074735_Fix_broken_IncidentTable_designer")]
+    [Migration("20260408000000_Fix_broken_IncidentTable_designer")]
     partial class Fix_broken_IncidentTable_designer
     {
         /// <inheritdoc />
