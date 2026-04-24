@@ -191,7 +191,18 @@ public class UserController(
         {
             return Forbid();
         }
-
+        // Prevent Admin & Superadmin from changing their own role
+        if (!string.IsNullOrWhiteSpace(request.Role) && id == currentUserId)
+        {
+            return BadRequest("You cannot change your own role.");
+        }
+        // Only Superadmin can assign Superadmin role
+        if (!string.IsNullOrWhiteSpace(request.Role) &&
+            request.Role.Equals("Superadmin", StringComparison.OrdinalIgnoreCase) &&
+            !IsSuperadmin(role))
+        {
+            return BadRequest("Only Superadmin can assign Superadmin role.");
+        }
         if (!string.IsNullOrWhiteSpace(request.Email))
         {
             var normalizedEmail = request.Email.Trim().ToLowerInvariant();
