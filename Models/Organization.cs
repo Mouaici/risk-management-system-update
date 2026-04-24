@@ -8,6 +8,8 @@ namespace RiskManagement.Models
         public required string Status { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+        public DateTime? AuditExpirationDate { get; set; }
+        public DateTime? NextAuditRevisionDate { get; set; }
 
         public List<User> Users { get; set; } = new();
         public List<Asset> Assets { get; set; } = new();

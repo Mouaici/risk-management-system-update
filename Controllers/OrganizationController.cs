@@ -107,5 +107,76 @@ public class OrganizationController(RiskManagementDbContext context, ICurrentUse
         return NoContent();
     }
 
+    [HttpPut("{id:int}/audit-details")]
+    public async Task<IActionResult> UpdateAuditDetails(int id, [FromBody] RiskManagement.Dtos.Organization.AuditDetailsRequest request)
+    {
+        var role = currentUserService.GetRequiredRole();
+        var currentOrgId = currentUserService.GetRequiredOrganizationId();
+
+        // Only Superadmin or Admin can update audit details
+        var isAdmin = role.Equals("Admin", StringComparison.OrdinalIgnoreCase);
+        var isSuperadmin = IsSuperadmin(role);
+
+        if (!isSuperadmin && (!isAdmin || id != currentOrgId))
+        {
+            return Forbid();
+        }
+
+        var organization = await context.Organizations.FirstOrDefaultAsync(o => o.Id == id);
+        if (organization is null)
+        {
+            return NotFound();
+        }
+
+        organization.AuditExpirationDate = request.AuditExpirationDate;
+        organization.NextAuditRevisionDate = request.NextAuditRevisionDate;
+        organization.UpdatedAt = DateTime.UtcNow;
+
+        context.Organizations.Update(organization);
+        await context.SaveChangesAsync();
+
+        var response = new RiskManagement.Dtos.Organization.AuditDetailsResponse
+        {
+            OrganizationId = organization.Id,
+            AuditExpirationDate = organization.AuditExpirationDate,
+            NextAuditRevisionDate = organization.NextAuditRevisionDate,
+            UpdatedAt = organization.UpdatedAt
+        };
+
+        return Ok(response);
+    }
+
+    [HttpGet("{id:int}/audit-details")]
+    public async Task<IActionResult> GetAuditDetails(int id)
+    {
+        var role = currentUserService.GetRequiredRole();
+        var currentOrgId = currentUserService.GetRequiredOrganizationId();
+
+        // Only Superadmin has full access, others can only view their own organization
+        if (!IsSuperadmin(role) && id != currentOrgId)
+        {
+            return Forbid();
+        }
+
+        var organization = await context.Organizations
+            .AsNoTracking()
+            .FirstOrDefaultAsync(o => o.Id == id);
+
+        if (organization is null)
+        {
+            return NotFound();
+        }
+
+        var response = new RiskManagement.Dtos.Organization.AuditDetailsResponse
+        {
+            OrganizationId = organization.Id,
+            AuditExpirationDate = organization.AuditExpirationDate,
+            NextAuditRevisionDate = organization.NextAuditRevisionDate,
+            UpdatedAt = organization.UpdatedAt
+        };
+
+        return Ok(response);
+    }
+
     private static bool IsSuperadmin(string role) => role.Equals("Superadmin", StringComparison.OrdinalIgnoreCase);
 }
