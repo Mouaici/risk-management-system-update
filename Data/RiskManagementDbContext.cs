@@ -90,6 +90,14 @@ public class RiskManagementDbContext : DbContext
             .Property(organization => organization.UpdatedAt)
             .HasColumnName("updated_at");
 
+        modelBuilder.Entity<Organization>()
+            .Property(organization => organization.AuditExpirationDate)
+            .HasColumnName("audit_expiration_date");
+
+        modelBuilder.Entity<Organization>()
+            .Property(organization => organization.NextAuditRevisionDate)
+            .HasColumnName("next_audit_revision_date");
+
         modelBuilder.Entity<Asset>()
             .ToTable("asset")
             .Property(asset => asset.Id)
