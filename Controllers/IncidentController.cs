@@ -104,17 +104,7 @@ public class IncidentController(RiskManagementDbContext context, ICurrentUserSer
         return Ok(Map(incident));
     }
 
-    [HttpDelete("{id:int}")]
-    [Authorize(Policy = "SuperadminOnly")]
-    public async Task<IActionResult> DeleteIncident(int id)
-    {
-        var orgId = currentUserService.GetRequiredOrganizationId();
-        var incident = await context.Incidents.FirstOrDefaultAsync(i => i.Id == id && i.OrganizationId == orgId);
-        if (incident is null) return NotFound();
-        context.Incidents.Remove(incident);
-        await context.SaveChangesAsync();
-        return NoContent();
-    }
+   
 
     private static IncidentResponse Map(Incident i) => new()
     {

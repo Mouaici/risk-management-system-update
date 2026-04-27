@@ -282,20 +282,7 @@ public class UserController(
         return Ok(Map(user));
     }
 
-    [HttpDelete("{id:int}")]
-    [Authorize(Policy = "SuperadminOnly")]
-    public async Task<IActionResult> DeleteUser(int id)
-    {
-        var user = await context.Users.FirstOrDefaultAsync(existingUser => existingUser.Id == id);
-        if (user is null)
-        {
-            return NotFound();
-        }
-
-        context.Users.Remove(user);
-        await context.SaveChangesAsync();
-        return NoContent();
-    }
+   
 
     private static bool IsSuperadmin(string role) => role.Equals("Superadmin", StringComparison.OrdinalIgnoreCase);
     private static bool IsUser(string role) => role.Equals("User", StringComparison.OrdinalIgnoreCase);

@@ -150,20 +150,7 @@ public class AssetController(RiskManagementDbContext context, ICurrentUserServic
         return Ok(Map(asset));
     }
 
-    [HttpDelete("{id:int}")]
-    [Authorize(Policy = "SuperadminOnly")]
-    public async Task<IActionResult> DeleteAsset(int id)
-    {
-        var asset = await context.Assets.FirstOrDefaultAsync(a => a.Id == id);
-        if (asset is null)
-        {
-            return NotFound();
-        }
-
-        context.Assets.Remove(asset);
-        await context.SaveChangesAsync();
-        return NoContent();
-    }
+    
 
     private static bool IsSuperadmin(string role) => role.Equals("Superadmin", StringComparison.OrdinalIgnoreCase);
 

@@ -170,26 +170,6 @@ public class RiskAssessmentController(RiskManagementDbContext context, ICurrentU
 
         return Ok(Map(existing));
     }
-
-    [HttpDelete("{id:int}")]
-    [Authorize(Policy = "SuperadminOnly")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var organizationId = currentUserService.GetRequiredOrganizationId();
-        var riskAssessment = await context.RiskAssessments
-            .FirstOrDefaultAsync(ra => ra.Id == id && ra.OrganizationId == organizationId);
-
-        if (riskAssessment is null)
-        {
-            return NotFound();
-        }
-
-        context.RiskAssessments.Remove(riskAssessment);
-        await context.SaveChangesAsync();
-
-        return NoContent();
-    }
-
     private async Task<int?> ValidateRiskAsync(int organizationId, int riskId)
     {
         if (riskId <= 0)
@@ -228,4 +208,7 @@ public class RiskAssessmentController(RiskManagementDbContext context, ICurrentU
             UpdatedAt = riskAssessment.UpdatedAt
         };
     }
+
+
+
 }

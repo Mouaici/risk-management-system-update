@@ -96,20 +96,7 @@ public class OrganizationController(RiskManagementDbContext context, ICurrentUse
         return Ok(org);
     }
 
-    [HttpDelete("{id:int}")]
-    [Authorize(Policy = "SuperadminOnly")]
-    public async Task<IActionResult> DeleteOrganization(int id)
-    {
-        var org = await context.Organizations.FirstOrDefaultAsync(o => o.Id == id);
-        if (org is null)
-        {
-            return NotFound();
-        }
-
-        context.Organizations.Remove(org);
-        await context.SaveChangesAsync();
-        return NoContent();
-    }
+   
 
     private static bool IsSuperadmin(string role) => role.Equals("Superadmin", StringComparison.OrdinalIgnoreCase);
 }

@@ -220,22 +220,7 @@ public class ActionPlanController(RiskManagementDbContext context, ICurrentUserS
         return Ok(response);
     }
 
-    // DELETE: api/ActionPlan/5
-    [HttpDelete("{id}")]
-    [Authorize(Policy = "SuperadminOnly")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var organizationId = currentUserService.GetRequiredOrganizationId();
-
-        var actionPlan = await context.ActionPlans
-            .FirstOrDefaultAsync(a => a.Id == id && a.OrganizationId == organizationId);
-
-        if (actionPlan == null) return NotFound();
-
-        context.ActionPlans.Remove(actionPlan);
-        await context.SaveChangesAsync();
-        return NoContent();
-    }
+    
 
     private async Task<int?> ValidateOwnerAsync(int organizationId, int? ownerUserId)
     {
