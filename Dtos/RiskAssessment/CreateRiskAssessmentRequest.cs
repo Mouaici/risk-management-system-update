@@ -12,8 +12,9 @@ public class CreateRiskAssessmentRequest
     [Range(1, 5)]
     public int Impact { get; set; }
     [Required]
-    [RegularExpression("^(Low|Medium|High)$")]
-    public string EconomicalLoss { get; set; } = string.Empty;
+    [RegularExpression("^(Low|Medium|High)$",
+        ErrorMessage = "EconomicalLoss must be Low, Medium, or High")]
+    public string EconomicalLoss { get; set; } = null!;
     public string RiskMitigation { get; set; } = string.Empty;
     public string RiskTransfer { get; set; } = string.Empty;
     public string RiskAvoidance { get; set; } = string.Empty;

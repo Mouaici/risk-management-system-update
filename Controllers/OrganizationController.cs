@@ -57,6 +57,8 @@ public class OrganizationController(RiskManagementDbContext context, ICurrentUse
     [Authorize(Policy = "SuperadminOnly")]
     public async Task<ActionResult<Organization>> AddOrganization([FromBody] RiskManagement.Dtos.Organization.CreateOrganizationRequest request)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         var now = DateTime.UtcNow;
         var org = new Organization
         {
@@ -77,6 +79,8 @@ public class OrganizationController(RiskManagementDbContext context, ICurrentUse
     [Authorize(Policy = "SuperadminOnly")]
     public async Task<ActionResult<Organization>> UpdateOrganization(int id, [FromBody] RiskManagement.Dtos.Organization.UpdateOrganizationRequest request)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         var org = await context.Organizations.FirstOrDefaultAsync(o => o.Id == id);
         if (org is null)
         {

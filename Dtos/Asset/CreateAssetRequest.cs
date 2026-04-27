@@ -25,6 +25,8 @@ public class CreateAssetRequest
     [Required]
     [MinLength(2)]
     [MaxLength(50)]
-    public string Status { get; set; } = string.Empty;
+    [RegularExpression("^(Open|InProgress|Closed)$",
+     ErrorMessage = "Status must be Open, InProgress, or Closed")]
+    public string Status { get; set; } = "Open";
 }
 

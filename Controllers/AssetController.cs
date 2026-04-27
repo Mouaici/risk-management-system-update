@@ -78,6 +78,8 @@ public class AssetController(RiskManagementDbContext context, ICurrentUserServic
     [Authorize(Policy = "AdminOrSuperadmin")]
     public async Task<ActionResult<AssetResponse>> CreateAsset([FromBody] CreateAssetRequest request)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         var role = currentUserService.GetRequiredRole();
         var organizationId = currentUserService.GetRequiredOrganizationId();
 
@@ -121,6 +123,8 @@ public class AssetController(RiskManagementDbContext context, ICurrentUserServic
     [Authorize(Policy = "AdminOrSuperadmin")]
     public async Task<ActionResult<AssetResponse>> UpdateAsset(int id, [FromBody] UpdateAssetRequest request)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         var role = currentUserService.GetRequiredRole();
         var organizationId = currentUserService.GetRequiredOrganizationId();
 

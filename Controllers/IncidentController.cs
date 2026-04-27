@@ -65,6 +65,8 @@ public class IncidentController(RiskManagementDbContext context, ICurrentUserSer
 
     public async Task<ActionResult<IncidentResponse>> CreateIncident([FromBody] CreateIncidentRequest request)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         var orgId = currentUserService.GetRequiredOrganizationId();
         var userId = currentUserService.GetRequiredUserId();
         var now = DateTime.UtcNow;
@@ -88,6 +90,8 @@ public class IncidentController(RiskManagementDbContext context, ICurrentUserSer
 
     public async Task<ActionResult<IncidentResponse>> UpdateIncident(int id, [FromBody] UpdateIncidentRequest request)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         var orgId = currentUserService.GetRequiredOrganizationId();
         var incident = await context.Incidents.FirstOrDefaultAsync(i => i.Id == id && i.OrganizationId == orgId);
         if (incident is null) return NotFound();
