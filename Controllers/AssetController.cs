@@ -80,30 +80,37 @@ public class AssetController(RiskManagementDbContext context, ICurrentUserServic
     {
         if (!ModelState.IsValid)
             return BadRequest(ModelState);
-        var role = currentUserService.GetRequiredRole();
-        var organizationId = currentUserService.GetRequiredOrganizationId();
 
-        var targetOrganizationId = request.OrganizationId ?? organizationId;
-        if (!IsSuperadmin(role) && targetOrganizationId != organizationId)
+        var role = currentUserService.GetRequiredRole();
+        var currentOrgId = currentUserService.GetRequiredOrganizationId();
+        //Admin cant't send OrganizationId
+        if (!IsSuperadmin(role) && request.OrganizationId.HasValue)
         {
-            return Forbid();
+            return BadRequest("Only Superadmin can set OrganizationId.");
         }
+
+        int organizationId;
 
         if (IsSuperadmin(role) && request.OrganizationId.HasValue)
         {
-            var organizationExists = await context.Organizations
-                .AsNoTracking()
+            var exists = await context.Organizations
                 .AnyAsync(o => o.Id == request.OrganizationId.Value);
-            if (!organizationExists)
-            {
+
+            if (!exists)
                 return BadRequest("Invalid organization.");
-            }
+
+            organizationId = request.OrganizationId.Value;
+        }
+        else
+        {
+            organizationId = currentOrgId;
         }
 
         var now = DateTime.UtcNow;
+
         var asset = new Asset
         {
-            OrganizationId = targetOrganizationId,
+            OrganizationId = organizationId,
             Name = request.Name.Trim(),
             Definition = request.Definition?.Trim(),
             AssetType = request.AssetType.Trim(),
