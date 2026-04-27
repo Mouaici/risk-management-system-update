@@ -7,7 +7,7 @@ public class UpdateAssetRequest
     [Required]
     [MinLength(2)]
     [MaxLength(200)]
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; set; } = null!;
 
     [MaxLength(2000)]
     public string? Definition { get; set; }
@@ -15,7 +15,7 @@ public class UpdateAssetRequest
     [Required]
     [MinLength(2)]
     [MaxLength(100)]
-    public string AssetType { get; set; } = string.Empty;
+    public string AssetType { get; set; } = null!;
 
     [MaxLength(100)]
     public string? Classification { get; set; }
@@ -23,6 +23,8 @@ public class UpdateAssetRequest
     [Required]
     [MinLength(2)]
     [MaxLength(50)]
-    public string Status { get; set; } = string.Empty;
+    [RegularExpression("^(Active|InActive)$",
+        ErrorMessage = "Status must be Active or InActive")]
+    public string Status { get; set; } = null!;
 }
 

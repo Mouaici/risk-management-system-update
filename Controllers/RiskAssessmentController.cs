@@ -85,6 +85,8 @@ public class RiskAssessmentController(RiskManagementDbContext context, ICurrentU
     [HttpPost]
     public async Task<ActionResult<RiskAssessmentResponse>> Create([FromBody] CreateRiskAssessmentRequest createDto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         var organizationId = currentUserService.GetRequiredOrganizationId();
         var assessedByUserId = currentUserService.GetRequiredUserId();
 
@@ -94,15 +96,13 @@ public class RiskAssessmentController(RiskManagementDbContext context, ICurrentU
             return BadRequest("Authenticated user must belong to the same organization.");
         }
 
+
         var riskId = await ValidateRiskAsync(organizationId, createDto.RiskId);
         if (riskId is null)
         {
             return BadRequest("Risk must belong to the same organization.");
         }
-        if( createDto.EconomicalLoss.ToLower() != "low" && createDto.EconomicalLoss.ToLower() != "medium" && createDto.EconomicalLoss.ToLower() != "high")
-        {
-            return BadRequest("Economical loss must be Low, Medium or High.");
-        }
+        
 
         var now = DateTime.UtcNow;
         var entity = new RiskAssessment
@@ -133,6 +133,8 @@ public class RiskAssessmentController(RiskManagementDbContext context, ICurrentU
     [HttpPut("{id:int}")]
     public async Task<ActionResult<RiskAssessmentResponse>> Update(int id, [FromBody] UpdateRiskAssessmentRequest updateDto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         var organizationId = currentUserService.GetRequiredOrganizationId();
         var assessedByUserId = currentUserService.GetRequiredUserId();
 
@@ -149,10 +151,7 @@ public class RiskAssessmentController(RiskManagementDbContext context, ICurrentU
         {
             return NotFound();
         }
-        if( updateDto.EconomicalLoss is not null && updateDto.EconomicalLoss.ToLower() != "low" && updateDto.EconomicalLoss.ToLower() != "medium" && updateDto.EconomicalLoss.ToLower() != "high")
-        {
-            return BadRequest("Economical loss must be Low, Medium or High.");
-        }
+        
 
         if (updateDto.Notes is not null) existing.Notes = updateDto.Notes;
         if (updateDto.RiskPhase is not null) existing.RiskPhase = updateDto.RiskPhase;
@@ -172,26 +171,6 @@ public class RiskAssessmentController(RiskManagementDbContext context, ICurrentU
 
         return Ok(Map(existing));
     }
-
-    [HttpDelete("{id:int}")]
-    [Authorize(Policy = "SuperadminOnly")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var organizationId = currentUserService.GetRequiredOrganizationId();
-        var riskAssessment = await context.RiskAssessments
-            .FirstOrDefaultAsync(ra => ra.Id == id && ra.OrganizationId == organizationId);
-
-        if (riskAssessment is null)
-        {
-            return NotFound();
-        }
-
-        context.RiskAssessments.Remove(riskAssessment);
-        await context.SaveChangesAsync();
-
-        return NoContent();
-    }
-
     private async Task<int?> ValidateRiskAsync(int organizationId, int riskId)
     {
         if (riskId <= 0)
@@ -230,4 +209,7 @@ public class RiskAssessmentController(RiskManagementDbContext context, ICurrentU
             UpdatedAt = riskAssessment.UpdatedAt
         };
     }
+
+
+
 }

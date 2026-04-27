@@ -57,6 +57,8 @@ public class OrganizationController(RiskManagementDbContext context, ICurrentUse
     [Authorize(Policy = "SuperadminOnly")]
     public async Task<ActionResult<Organization>> AddOrganization([FromBody] RiskManagement.Dtos.Organization.CreateOrganizationRequest request)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         var now = DateTime.UtcNow;
         var org = new Organization
         {
@@ -77,6 +79,8 @@ public class OrganizationController(RiskManagementDbContext context, ICurrentUse
     [Authorize(Policy = "SuperadminOnly")]
     public async Task<ActionResult<Organization>> UpdateOrganization(int id, [FromBody] RiskManagement.Dtos.Organization.UpdateOrganizationRequest request)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         var org = await context.Organizations.FirstOrDefaultAsync(o => o.Id == id);
         if (org is null)
         {
@@ -92,20 +96,7 @@ public class OrganizationController(RiskManagementDbContext context, ICurrentUse
         return Ok(org);
     }
 
-    [HttpDelete("{id:int}")]
-    [Authorize(Policy = "SuperadminOnly")]
-    public async Task<IActionResult> DeleteOrganization(int id)
-    {
-        var org = await context.Organizations.FirstOrDefaultAsync(o => o.Id == id);
-        if (org is null)
-        {
-            return NotFound();
-        }
-
-        context.Organizations.Remove(org);
-        await context.SaveChangesAsync();
-        return NoContent();
-    }
+   
 
     [HttpPut("{id:int}/audit-details")]
     public async Task<IActionResult> UpdateAuditDetails(int id, [FromBody] RiskManagement.Dtos.Organization.AuditDetailsRequest request)

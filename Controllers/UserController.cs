@@ -191,7 +191,18 @@ public class UserController(
         {
             return Forbid();
         }
-
+        // Prevent Admin & Superadmin from changing their own role
+        if (!string.IsNullOrWhiteSpace(request.Role) && id == currentUserId)
+        {
+            return BadRequest("You cannot change your own role.");
+        }
+        // Only Superadmin can assign Superadmin role
+        if (!string.IsNullOrWhiteSpace(request.Role) &&
+            request.Role.Equals("Superadmin", StringComparison.OrdinalIgnoreCase) &&
+            !IsSuperadmin(role))
+        {
+            return BadRequest("Only Superadmin can assign Superadmin role.");
+        }
         if (!string.IsNullOrWhiteSpace(request.Email))
         {
             var normalizedEmail = request.Email.Trim().ToLowerInvariant();
@@ -271,20 +282,7 @@ public class UserController(
         return Ok(Map(user));
     }
 
-    [HttpDelete("{id:int}")]
-    [Authorize(Policy = "SuperadminOnly")]
-    public async Task<IActionResult> DeleteUser(int id)
-    {
-        var user = await context.Users.FirstOrDefaultAsync(existingUser => existingUser.Id == id);
-        if (user is null)
-        {
-            return NotFound();
-        }
-
-        context.Users.Remove(user);
-        await context.SaveChangesAsync();
-        return NoContent();
-    }
+   
 
     private static bool IsSuperadmin(string role) => role.Equals("Superadmin", StringComparison.OrdinalIgnoreCase);
     private static bool IsUser(string role) => role.Equals("User", StringComparison.OrdinalIgnoreCase);

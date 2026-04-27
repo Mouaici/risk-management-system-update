@@ -25,6 +25,8 @@ public class CreateAssetRequest
     [Required]
     [MinLength(2)]
     [MaxLength(50)]
+    [RegularExpression("^(Active|InActive)$",
+     ErrorMessage = "Status must be Active or InActive")]
     public string Status { get; set; } = string.Empty;
 }
 

@@ -78,30 +78,39 @@ public class AssetController(RiskManagementDbContext context, ICurrentUserServic
     [Authorize(Policy = "AdminOrSuperadmin")]
     public async Task<ActionResult<AssetResponse>> CreateAsset([FromBody] CreateAssetRequest request)
     {
-        var role = currentUserService.GetRequiredRole();
-        var organizationId = currentUserService.GetRequiredOrganizationId();
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
 
-        var targetOrganizationId = request.OrganizationId ?? organizationId;
-        if (!IsSuperadmin(role) && targetOrganizationId != organizationId)
+        var role = currentUserService.GetRequiredRole();
+        var currentOrgId = currentUserService.GetRequiredOrganizationId();
+        //Admin cant't send OrganizationId
+        if (!IsSuperadmin(role) && request.OrganizationId.HasValue)
         {
-            return Forbid();
+            return BadRequest("Only Superadmin can set OrganizationId.");
         }
+
+        int organizationId;
 
         if (IsSuperadmin(role) && request.OrganizationId.HasValue)
         {
-            var organizationExists = await context.Organizations
-                .AsNoTracking()
+            var exists = await context.Organizations
                 .AnyAsync(o => o.Id == request.OrganizationId.Value);
-            if (!organizationExists)
-            {
+
+            if (!exists)
                 return BadRequest("Invalid organization.");
-            }
+
+            organizationId = request.OrganizationId.Value;
+        }
+        else
+        {
+            organizationId = currentOrgId;
         }
 
         var now = DateTime.UtcNow;
+
         var asset = new Asset
         {
-            OrganizationId = targetOrganizationId,
+            OrganizationId = organizationId,
             Name = request.Name.Trim(),
             Definition = request.Definition?.Trim(),
             AssetType = request.AssetType.Trim(),
@@ -121,6 +130,8 @@ public class AssetController(RiskManagementDbContext context, ICurrentUserServic
     [Authorize(Policy = "AdminOrSuperadmin")]
     public async Task<ActionResult<AssetResponse>> UpdateAsset(int id, [FromBody] UpdateAssetRequest request)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         var role = currentUserService.GetRequiredRole();
         var organizationId = currentUserService.GetRequiredOrganizationId();
 
@@ -146,20 +157,7 @@ public class AssetController(RiskManagementDbContext context, ICurrentUserServic
         return Ok(Map(asset));
     }
 
-    [HttpDelete("{id:int}")]
-    [Authorize(Policy = "SuperadminOnly")]
-    public async Task<IActionResult> DeleteAsset(int id)
-    {
-        var asset = await context.Assets.FirstOrDefaultAsync(a => a.Id == id);
-        if (asset is null)
-        {
-            return NotFound();
-        }
-
-        context.Assets.Remove(asset);
-        await context.SaveChangesAsync();
-        return NoContent();
-    }
+    
 
     private static bool IsSuperadmin(string role) => role.Equals("Superadmin", StringComparison.OrdinalIgnoreCase);
 

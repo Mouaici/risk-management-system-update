@@ -79,6 +79,8 @@ public class ActionPlanController(RiskManagementDbContext context, ICurrentUserS
     [Authorize(Policy = "AdminOrSuperadmin")]
     public async Task<ActionResult<ActionPlanResponse>> Create([FromBody] CreateActionPlanRequest createDto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         var organizationId = currentUserService.GetRequiredOrganizationId();
 
         if (createDto.RiskId == 0) createDto.RiskId = null;
@@ -150,6 +152,8 @@ public class ActionPlanController(RiskManagementDbContext context, ICurrentUserS
     [Authorize(Policy = "AdminOrSuperadmin")]
     public async Task<ActionResult<ActionPlanResponse>> Update(int id, [FromBody] UpdateActionPlanRequest updateDto)
     {
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
         var organizationId = currentUserService.GetRequiredOrganizationId();
         if (updateDto.RiskId == 0) updateDto.RiskId = null;
         if (updateDto.IncidentId == 0) updateDto.IncidentId = null;
@@ -185,9 +189,12 @@ public class ActionPlanController(RiskManagementDbContext context, ICurrentUserS
         existing.RiskId = riskId;
         existing.IncidentId = incidentId;
         existing.OwnerUserId = ownerUserId;
-        existing.SuggestedAction = updateDto.SuggestedAction;
+        if (updateDto.SuggestedAction != null)
+            existing.SuggestedAction = updateDto.SuggestedAction;
         existing.PlannedCompletionDate = updateDto.PlannedCompletionDate;
-        existing.ActionPlanStatus = updateDto.ActionPlanStatus;
+
+        if (updateDto.ActionPlanStatus != null)
+            existing.ActionPlanStatus = updateDto.ActionPlanStatus;
         existing.FollowUp = updateDto.FollowUp;
         existing.Notes = updateDto.Notes;
         existing.UpdatedAt = DateTime.UtcNow;
@@ -213,22 +220,7 @@ public class ActionPlanController(RiskManagementDbContext context, ICurrentUserS
         return Ok(response);
     }
 
-    // DELETE: api/ActionPlan/5
-    [HttpDelete("{id}")]
-    [Authorize(Policy = "SuperadminOnly")]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var organizationId = currentUserService.GetRequiredOrganizationId();
-
-        var actionPlan = await context.ActionPlans
-            .FirstOrDefaultAsync(a => a.Id == id && a.OrganizationId == organizationId);
-
-        if (actionPlan == null) return NotFound();
-
-        context.ActionPlans.Remove(actionPlan);
-        await context.SaveChangesAsync();
-        return NoContent();
-    }
+    
 
     private async Task<int?> ValidateOwnerAsync(int organizationId, int? ownerUserId)
     {
