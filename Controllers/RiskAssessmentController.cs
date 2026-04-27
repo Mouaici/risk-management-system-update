@@ -96,6 +96,7 @@ public class RiskAssessmentController(RiskManagementDbContext context, ICurrentU
             return BadRequest("Authenticated user must belong to the same organization.");
         }
 
+
         var riskId = await ValidateRiskAsync(organizationId, createDto.RiskId);
         if (riskId is null)
         {

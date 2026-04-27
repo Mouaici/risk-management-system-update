@@ -11,6 +11,7 @@ public class CreateActionPlanRequest
     
     public string? SuggestedAction { get; set; } 
     public DateTime? PlannedCompletionDate { get; set; }
+
     [Required]
     [RegularExpression("^(Open|InProgress|Closed)$",
      ErrorMessage = "Status must be Open, InProgress, or Closed")]
