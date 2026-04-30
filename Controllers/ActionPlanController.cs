@@ -12,8 +12,6 @@ namespace RiskManagement.Controllers;
 [Authorize]
 public class ActionPlanController(RiskManagementDbContext context, ICurrentUserService currentUserService) : ControllerBase
 {
-
-    // GET: api/ActionPlan
     [HttpGet]
 
     public async Task<ActionResult<List<ActionPlanResponse>>> GetAll()
@@ -43,7 +41,6 @@ public class ActionPlanController(RiskManagementDbContext context, ICurrentUserS
         return Ok(actionPlans);
     }
 
-    // GET: api/ActionPlan/5
     [HttpGet("{id}")]
 
     public async Task<ActionResult<ActionPlanResponse>> Get(int id)
@@ -74,7 +71,6 @@ public class ActionPlanController(RiskManagementDbContext context, ICurrentUserS
         return Ok(actionPlan);
     }
 
-    // POST: api/ActionPlan
     [HttpPost]
     [Authorize(Policy = "AdminOrSuperadmin")]
     public async Task<ActionResult<ActionPlanResponse>> Create([FromBody] CreateActionPlanRequest createDto)
@@ -86,7 +82,6 @@ public class ActionPlanController(RiskManagementDbContext context, ICurrentUserS
         if (createDto.RiskId == 0) createDto.RiskId = null;
         if (createDto.IncidentId == 0) createDto.IncidentId = null;
 
-        // XOR validation
         if (createDto.RiskId.HasValue == createDto.IncidentId.HasValue)
         {
             return BadRequest("Provide either RiskId OR IncidentId (exactly one required).");
@@ -147,7 +142,6 @@ public class ActionPlanController(RiskManagementDbContext context, ICurrentUserS
         return CreatedAtAction(nameof(Get), new { id = entity.Id }, response);
     }
 
-    // PUT: api/ActionPlan/5
     [HttpPut("{id}")]
     [Authorize(Policy = "AdminOrSuperadmin")]
     public async Task<ActionResult<ActionPlanResponse>> Update(int id, [FromBody] UpdateActionPlanRequest updateDto)
@@ -220,7 +214,7 @@ public class ActionPlanController(RiskManagementDbContext context, ICurrentUserS
         return Ok(response);
     }
 
-    
+
 
     private async Task<int?> ValidateOwnerAsync(int organizationId, int? ownerUserId)
     {

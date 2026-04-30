@@ -83,7 +83,6 @@ public class AssetController(RiskManagementDbContext context, ICurrentUserServic
 
         var role = currentUserService.GetRequiredRole();
         var currentOrgId = currentUserService.GetRequiredOrganizationId();
-        //Admin cant't send OrganizationId
         if (!IsSuperadmin(role) && request.OrganizationId.HasValue)
         {
             return BadRequest("Only Superadmin can set OrganizationId.");
@@ -157,7 +156,7 @@ public class AssetController(RiskManagementDbContext context, ICurrentUserServic
         return Ok(Map(asset));
     }
 
-    
+
 
     private static bool IsSuperadmin(string role) => role.Equals("Superadmin", StringComparison.OrdinalIgnoreCase);
 

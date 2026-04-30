@@ -37,7 +37,6 @@ public class OrganizationController(RiskManagementDbContext context, ICurrentUse
         var role = currentUserService.GetRequiredRole();
         var currentOrgId = currentUserService.GetRequiredOrganizationId();
 
-        // Only Superadmin has full access
         if (!IsSuperadmin(role) && id != currentOrgId)
         {
             return Forbid();
@@ -96,7 +95,7 @@ public class OrganizationController(RiskManagementDbContext context, ICurrentUse
         return Ok(org);
     }
 
-   
+
 
     [HttpPut("{id:int}/audit-details")]
     public async Task<IActionResult> UpdateAuditDetails(int id, [FromBody] RiskManagement.Dtos.Organization.AuditDetailsRequest request)
@@ -104,7 +103,6 @@ public class OrganizationController(RiskManagementDbContext context, ICurrentUse
         var role = currentUserService.GetRequiredRole();
         var currentOrgId = currentUserService.GetRequiredOrganizationId();
 
-        // Only Superadmin or Admin can update audit details
         var isAdmin = role.Equals("Admin", StringComparison.OrdinalIgnoreCase);
         var isSuperadmin = IsSuperadmin(role);
 
@@ -143,7 +141,6 @@ public class OrganizationController(RiskManagementDbContext context, ICurrentUse
         var role = currentUserService.GetRequiredRole();
         var currentOrgId = currentUserService.GetRequiredOrganizationId();
 
-        // Only Superadmin has full access, others can only view their own organization
         if (!IsSuperadmin(role) && id != currentOrgId)
         {
             return Forbid();
