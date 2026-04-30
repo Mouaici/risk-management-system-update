@@ -217,6 +217,50 @@ Swagger UI (development):
 
 - `https://localhost:7231/swagger`
 
+### Recommended Data Creation Order (Chain of Steps)
+
+To avoid validation errors and missing cross-entity references, create data in this order:
+
+1. **Organization**
+   - Endpoint: `POST /api/organization`
+   - Why first: all core entities are organization-scoped.
+
+2. **User**
+   - Endpoint: `POST /api/auth/register` (or use seeded users)
+   - Why second: users are needed for ownership/reporting (`OwnerUserId`, reporter, assessor).
+
+3. **Asset**
+   - Endpoint: `POST /api/asset`
+   - Why third: risks can reference assets (`AssetId`), so assets should exist first.
+
+4. **Risk** or **Incident** (branching step)
+   - Risk endpoint: `POST /api/risks`
+   - Incident endpoint: `POST /api/incidents`
+   - Why now: these are parent records for follow-up workflows.
+
+5. **Risk Assessment** (when working with a risk)
+   - Endpoint: `POST /api/risk-assessment`
+   - Depends on: existing `RiskId`
+   - Note: `RiskScore` is calculated from `Likelihood * Impact`.
+
+6. **Action Plan** (for risk or incident)
+   - Endpoint: `POST /api/action-plans`
+   - Depends on: existing `RiskId` or `IncidentId`
+   - Rule: provide exactly one of `RiskId` or `IncidentId` (XOR).
+
+Quick dependency view:
+
+`Organization -> User -> Asset -> (Risk or Incident) -> (RiskAssessment for Risk) -> ActionPlan`
+
+Example flow (risk path):
+
+1. Create organization (`POST /api/organization`)
+2. Create users in that organization (`POST /api/auth/register`)
+3. Create asset (`POST /api/asset`)
+4. Create risk linked to owner/asset (`POST /api/risks`)
+5. Create risk assessment for that risk (`POST /api/risk-assessment`)
+6. Create action plan linked to that risk (`POST /api/action-plans`)
+
 ### Auth (`/api/auth`)
 
 - `POST /register` - create user (Admin or Superadmin)
@@ -230,7 +274,6 @@ Swagger UI (development):
 - `POST /` - Superadmin only
 - `PUT /{id}` - Superadmin only
 
-
 ### Users (`/api/users`)
 
 - `GET /` - Admin/Superadmin
@@ -238,26 +281,23 @@ Swagger UI (development):
 - `GET /me` - current authenticated user
 - `PUT /{id}` - self update for User, broader update for Admin/Superadmin
 
-
 ### Assets (`/api/asset`)
 
 - `GET /`, `GET /{id}` - authenticated users (org-scoped unless Superadmin)
 - `POST /` - Admin/Superadmin
 - `PUT /{id}` - Admin/Superadmin
 
-
 ### Risks (`/api/risks`)
 
 - `GET /` - list risks in caller org (supports `status` and `ownerUserId` filters)
 - `GET /{id}` - risk by id in caller org
-- `POST /` - create risk in caller org 
+- `POST /` - create risk in caller org
 - `PUT /{id}` - update risk in caller org
 - `PATCH /{id}/status` - update only status
-  
- Important Validation Rules
 
-- The risk status will be "open" initially, it can not be "In progress" or "Mitigated". It can have "In progress" and "Mitigated" status only after the risk assessment is   done (It can be done in update or patch endpoint).
+Important Validation Rules
 
+- The risk status will be "open" initially, it can not be "In progress" or "Mitigated". It can have "In progress" and "Mitigated" status only after the risk assessment is done (It can be done in update or patch endpoint).
 
 ### Incidents (`/api/incidents`)
 
@@ -265,13 +305,11 @@ Swagger UI (development):
 - `POST /` - create incident in caller org, reporter = authenticated user
 - `PUT /{id}` - update incident in caller org
 
-
 ### Action Plans (`/api/action-plans`)
 
 - `GET /`, `GET /{id}` - org-scoped read
 - `POST /` - Admin/Superadmin
 - `PUT /{id}` - Admin/Superadmin
-
 
 Important validation rule:
 
@@ -282,7 +320,6 @@ Important validation rule:
 - `GET /`, `GET /{id}` - org-scoped read
 - `POST /` - create assessment for org risk
 - `PUT /{id}` - update assessment
-
 
 Behavior notes:
 
