@@ -15,9 +15,5 @@ public class CreateRiskRequest
     public int? OwnerUserId { get; set; }
     public int? AssetId { get; set; }
 
-    [Required]
-    [RegularExpression("^(Open|InProgress|Mitigated|Accepted|Closed)$")]
-    public string Status { get; set; } = "Open";
-
 }
 
