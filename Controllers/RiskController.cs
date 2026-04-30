@@ -106,7 +106,7 @@ public class RiskController(RiskManagementDbContext context, ICurrentUserService
             Description = request.Description?.Trim(),
             OwnerUserId = ownerUserId,
             AssetId = assetId,
-            Status = request.Status,
+            Status = "Open",
             CreatedAt = now,
             UpdatedAt = now
         };
@@ -138,6 +138,15 @@ public class RiskController(RiskManagementDbContext context, ICurrentUserService
             return BadRequest("Asset must belong to the same organization.");
         }
 
+        if (RequiresAssessmentForStatus(request.Status))
+        {
+            var hasAssessment = await HasAnyAssessmentAsync(organizationId, id);
+            if (!hasAssessment)
+            {
+                return BadRequest("Risk must have at least one assessment before setting status to InProgress, Mitigated, Accepted, or Closed.");
+            }
+        }
+
         risk.Title = request.Title.Trim();
         risk.Description = request.Description?.Trim();
         risk.OwnerUserId = ownerUserId;
@@ -159,6 +168,15 @@ public class RiskController(RiskManagementDbContext context, ICurrentUserService
             return NotFound();
         }
 
+        if (RequiresAssessmentForStatus(request.Status))
+        {
+            var hasAssessment = await HasAnyAssessmentAsync(organizationId, id);
+            if (!hasAssessment)
+            {
+                return BadRequest("Risk must have at least one assessment before setting status to InProgress, Mitigated, Accepted, or Closed.");
+            }
+        }
+
         risk.Status = request.Status;
         risk.UpdatedAt = DateTime.UtcNow;
 
@@ -166,7 +184,7 @@ public class RiskController(RiskManagementDbContext context, ICurrentUserService
         return Ok(Map(risk));
     }
 
-  
+
 
     private async Task<int?> ValidateOwnerAsync(int organizationId, int? ownerUserId)
     {
@@ -204,6 +222,18 @@ public class RiskController(RiskManagementDbContext context, ICurrentUserService
             CreatedAt = risk.CreatedAt,
             UpdatedAt = risk.UpdatedAt
         };
+    }
+
+    private static bool RequiresAssessmentForStatus(string? status)
+    {
+        return !string.Equals(status?.Trim(), "Open", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private async Task<bool> HasAnyAssessmentAsync(int organizationId, int riskId)
+    {
+        return await context.RiskAssessments
+            .AsNoTracking()
+            .AnyAsync(ra => ra.OrganizationId == organizationId && ra.RiskId == riskId);
     }
 }
 
