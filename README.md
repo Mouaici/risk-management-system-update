@@ -229,7 +229,7 @@ Swagger UI (development):
 - `GET /` - Superadmin gets all organizations; others get own organization only
 - `POST /` - Superadmin only
 - `PUT /{id}` - Superadmin only
-- `DELETE /{id}` - Superadmin only
+
 
 ### Users (`/api/users`)
 
@@ -237,37 +237,41 @@ Swagger UI (development):
 - `GET /{id}` - Admin/Superadmin (org-scoped unless Superadmin)
 - `GET /me` - current authenticated user
 - `PUT /{id}` - self update for User, broader update for Admin/Superadmin
-- `DELETE /{id}` - Superadmin only
+
 
 ### Assets (`/api/asset`)
 
 - `GET /`, `GET /{id}` - authenticated users (org-scoped unless Superadmin)
 - `POST /` - Admin/Superadmin
 - `PUT /{id}` - Admin/Superadmin
-- `DELETE /{id}` - Superadmin only
+
 
 ### Risks (`/api/risks`)
 
 - `GET /` - list risks in caller org (supports `status` and `ownerUserId` filters)
 - `GET /{id}` - risk by id in caller org
-- `POST /` - create risk in caller org
+- `POST /` - create risk in caller org 
 - `PUT /{id}` - update risk in caller org
 - `PATCH /{id}/status` - update only status
-- `DELETE /{id}` - Superadmin only
+  
+ Important Validation Rules
+
+- The risk status will be "open" initially, it can not be "In progress" or "Mitigated". It can have "In progress" and "Mitigated" status only after the risk assessment is   done (It can be done in update or patch endpoint).
+
 
 ### Incidents (`/api/incidents`)
 
 - `GET /`, `GET /{id}` - org-scoped read
 - `POST /` - create incident in caller org, reporter = authenticated user
 - `PUT /{id}` - update incident in caller org
-- `DELETE /{id}` - Superadmin only
+
 
 ### Action Plans (`/api/action-plans`)
 
 - `GET /`, `GET /{id}` - org-scoped read
 - `POST /` - Admin/Superadmin
 - `PUT /{id}` - Admin/Superadmin
-- `DELETE /{id}` - Superadmin only
+
 
 Important validation rule:
 
@@ -278,7 +282,7 @@ Important validation rule:
 - `GET /`, `GET /{id}` - org-scoped read
 - `POST /` - create assessment for org risk
 - `PUT /{id}` - update assessment
-- `DELETE /{id}` - Superadmin only
+
 
 Behavior notes:
 
