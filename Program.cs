@@ -23,7 +23,6 @@ var jwtAudience = builder.Configuration["Jwt:Audience"]
 
 var jwtSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
 
-Console.WriteLine("Hello, World!");
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 builder.Services.AddCors(options =>
 {
@@ -36,10 +35,6 @@ builder.Services.AddCors(options =>
     });
 });
 
-// TESTING THE RULES
-
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -72,9 +67,9 @@ builder.Services.AddDbContext<RiskManagementDbContext>(options =>
 
     options.UseMySql(
 
-        builder.Configuration.GetConnectionString("DefaultConnection"),
+        defaultConnection,
 
-        ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("DefaultConnection"))
+        ServerVersion.AutoDetect(defaultConnection)
 
     ));
 
@@ -92,24 +87,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = jwtAudience,
             IssuerSigningKey = jwtSigningKey,
             ClockSkew = TimeSpan.Zero
-        };
-
-        options.Events = new JwtBearerEvents
-        {
-            OnAuthenticationFailed = context =>
-            {
-                Console.WriteLine($"JWT authentication failed: {context.Exception.Message}");
-                return Task.CompletedTask;
-            },
-            OnChallenge = context =>
-            {
-                if (!string.IsNullOrWhiteSpace(context.ErrorDescription))
-                {
-                    Console.WriteLine($"JWT challenge error: {context.ErrorDescription}");
-                }
-
-                return Task.CompletedTask;
-            }
         };
     });
 
@@ -149,7 +126,6 @@ using (var scope = app.Services.CreateScope())
 }
 
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();

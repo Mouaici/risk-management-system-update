@@ -16,7 +16,7 @@ public class UserController(
     IPasswordService passwordService) : ControllerBase
 {
     [HttpGet]
-   
+
     public async Task<ActionResult<List<UserResponse>>> GetUsers()
     {
         var role = currentUserService.GetRequiredRole();
@@ -121,7 +121,7 @@ public class UserController(
         return Ok(user);
     }
 
-   
+
     [HttpPut("{id:int}")]
     public async Task<ActionResult<UserResponse>> UpdateUser(int id, [FromBody] UpdateUserRequest request)
     {
@@ -150,12 +150,10 @@ public class UserController(
         {
             return Forbid();
         }
-        // Prevent Admin & Superadmin from changing their own role
         if (!string.IsNullOrWhiteSpace(request.Role) && id == currentUserId)
         {
             return BadRequest("You cannot change your own role.");
         }
-        // Only Superadmin can assign Superadmin role
         if (!string.IsNullOrWhiteSpace(request.Role) &&
             request.Role.Equals("Superadmin", StringComparison.OrdinalIgnoreCase) &&
             !IsSuperadmin(role))
@@ -241,7 +239,7 @@ public class UserController(
         return Ok(Map(user));
     }
 
-   
+
 
     private static bool IsSuperadmin(string role) => role.Equals("Superadmin", StringComparison.OrdinalIgnoreCase);
     private static bool IsUser(string role) => role.Equals("User", StringComparison.OrdinalIgnoreCase);
